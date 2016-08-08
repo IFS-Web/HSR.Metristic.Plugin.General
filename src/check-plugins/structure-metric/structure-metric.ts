@@ -10,7 +10,7 @@ export class StructureMetric implements Check {
 	private reportTemplate: string;
 	private partials: {[name:string]:string};
 
-	constructor() {
+	constructor(private options: { [name: string]: any }) {
 		this.reportTemplate = FS.readFileSync(Path.join(__dirname,'./templates/reportTemplate.html'), "utf8");
 		this.partials = {
 			directoryPartial: FS.readFileSync(Path.join(__dirname,'./templates/directoryPartial.html'), "utf8")
