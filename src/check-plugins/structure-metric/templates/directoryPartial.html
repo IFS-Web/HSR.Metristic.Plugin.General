@@ -1,0 +1,17 @@
+<span>{{name}}</span>
+<ul class="structure">
+	{{#each structure.directories}}
+	<li class="empty">
+		<img src="/assets/images/icon-directory.svg" class="icon directory" />
+		{{> directoryPartial structure=this}}
+	</li>
+	{{/each}}
+</ul>
+<ul class="structure">
+	{{#each structure.files}}
+	<li class="empty">
+		<img src="/assets/images/icon-file.svg" class="icon file" />
+		{{this}}
+	</li>
+	{{/each}}
+</ul>
