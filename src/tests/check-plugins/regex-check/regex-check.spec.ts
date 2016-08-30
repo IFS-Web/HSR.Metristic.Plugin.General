@@ -181,7 +181,7 @@ describe("Regex check", () => {
 					"rule": /^(([^\{\},]*,)*(\s|\t)*[\w\d\s<>~\[\]="]*(\s|\t)*(,[^\{\},]*)*)(\{[^\{\}]*\})/igm,
 					"min": 0.5,
 					"max": 0.7,
-					"valueFormat": "PERCENT", // 'PERCENT' | 'NUMBER'
+					"valueFormat": "PERCENT",
 					"errorMessage": "To less classes used."
 				}
 			};
@@ -193,6 +193,90 @@ describe("Regex check", () => {
 				"#a, span span {\n\tcolor: red;\n}",
 				'.bc > span, span > .fg { color: blue; }'
 			];
+
+			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+
+			expect(results[filePath]).toBeUndefined();
+		});
+
+		it("should not return error if absolute max is null", () => {
+			let results = {};
+			let rule: CheckRule = {
+				name: null,
+				files: null,
+				snippet: null,
+				snippetCheck: {
+					"rule": /[aeou]/igm,
+					"min": 1,
+					"max": null,
+					"valueFormat": "NUMBER",
+					"errorMessage": "To less vocals."
+				}
+			};
+			let snippets: string[] = ['abc', 'def', 'ago', 'aeo'];
+
+			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+
+			expect(results[filePath]).toBeUndefined();
+		});
+
+		it("should not return error if absolute min is null", () => {
+			let results = {};
+			let rule: CheckRule = {
+				name: null,
+				files: null,
+				snippet: null,
+				snippetCheck: {
+					"rule": /[aeou]/igm,
+					"min": null,
+					"max": 3,
+					"valueFormat": "NUMBER",
+					"errorMessage": "To much vocals."
+				}
+			};
+			let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
+
+			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+
+			expect(results[filePath]).toBeUndefined();
+		});
+
+		it("should not return error if percentage max is null", () => {
+			let results = {};
+			let rule: CheckRule = {
+				name: null,
+				files: null,
+				snippet: null,
+				snippetCheck: {
+					"rule": /[aeou]/igm,
+					"min": 0.4,
+					"max": null,
+					"valueFormat": "PERCENT",
+					"errorMessage": "To less vocals."
+				}
+			};
+			let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
+
+			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+
+			expect(results[filePath]).toBeUndefined();
+		});
+
+		it("should not return error if percentage min is null", () => {
+			let results = {};
+			let rule: CheckRule = {
+				name: null,
+				files: null,
+				snippet: null,
+				snippetCheck: {
+					"rule": /[aeou]/igm,
+					"min": null,
+					"max": 0.5,
+					"valueFormat": "PERCENTAGE",
+					"errorMessage": "To much vocals."
+				}
+			};
+			let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
 
 			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
 

@@ -104,12 +104,12 @@ export class RegexCheck implements Check {
 
 	static checkRule(fileData, rule, filePath, results, errors) {
 		let matches:string[] = fileData.toString().match(rule.snippet.rule);
-		if (!rule.snippet.min || (matches.length >= rule.snippet.min) && (!rule.snippet.max || matches.length <= rule.snippet.max)) {
+		if (RegexCheck.countOutOfBounds(matches.length, rule.snippet)) {
+			RegexCheck.addRuleResult(filePath, rule, matches.length, rule.snippet.errorMessage, results);
+		} else {
 			if (rule.snippetCheck) {
 				RegexCheck.checkSnippet(rule, matches, filePath, results, errors);
 			}
-		} else {
-			RegexCheck.addRuleResult(filePath, rule, matches.length, rule.snippet.errorMessage, results);
 		}
 	};
 
@@ -120,21 +120,27 @@ export class RegexCheck implements Check {
 				matches.forEach((match) => {
 					let snippetMatches: string[] = match.match(snippetCheck.rule) || []; // match returns null if 0 found
 					let occurrence:number = snippetMatches.length;
-					if (!(occurrence && occurrence >= snippetCheck.min && occurrence <= snippetCheck.max)) {
+					if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
 						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.errorMessage, results);
 					}
 				});
 				break;
 			case("PERCENT"):
-				let numberOfSnippetRuleMatches:number = matches.filter((matchResult) => Boolean(matchResult.match(snippetCheck.rule))).length;
-				let occurrence:number = numberOfSnippetRuleMatches / matches.length;
-				if (!(occurrence && occurrence >= snippetCheck.min && occurrence <= snippetCheck.max)) {
+				let numberOfMatchingSnippetRules:number = matches.filter(
+					(matchResult) => Boolean(matchResult.match(snippetCheck.rule))
+				).length;
+				let occurrence:number = numberOfMatchingSnippetRules / matches.length;
+				if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
 					RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.errorMessage, results);
 				}
 				break;
 			default:
 				errors.push(new Error(`Rule "${rule.name} specifies invalid snippet check format (${snippetCheck.valueFormat}).`))
 		}
+	};
+
+	private static countOutOfBounds(count, bounds) {
+		return !(typeof(count) !== 'undefined' && (bounds.min == null || count >= bounds.min) && (bounds.max == null || count <= bounds.max));
 	};
 
 	private static addRuleResult(filePath, rule, occurrence, errorMessage, results) {
