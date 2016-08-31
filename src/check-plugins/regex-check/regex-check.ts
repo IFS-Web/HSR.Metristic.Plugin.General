@@ -54,7 +54,7 @@ export class RegexCheck implements Check {
 				}
 			},
 			snippetCheck: {
-				rule: /<time [^<>\/]*datetime="(\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?)"[^<>\/]*>[^<>\/]*<\/time>/igm,
+				rule: /<time [^<>\/]*datetime="((\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?))"[^<>\/]*>[^<>\/]*<\/time>/igm,
 				min: 1,
 				max: 1,
 				valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
@@ -68,7 +68,7 @@ export class RegexCheck implements Check {
 			name: "Bookmark icon",
 			files: "*.html",
 			snippet: {
-				rule: /<link[^<>\/]*rel="icon"[^<>\/]*\\?>/igm,
+				rule: /<link[^<>]*rel="icon"[^<>]*\/?>/igm,
 				min: 1,
 				max: 1,
 				error: {
@@ -81,7 +81,7 @@ export class RegexCheck implements Check {
 			name: "Stylesheets",
 			files: "*.html",
 			snippet: {
-				rule: /<link[^<>\/]*rel="stylesheet"[^<>\/]*\\?>/igm,
+				rule: /<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm,
 				min: 1,
 				max: null,
 				error: {
