@@ -39,7 +39,6 @@ export interface CheckRuleResult {
 
 export class RegexCheck implements Check {
 	private reportTemplate:string;
-	private partials:{[name:string]:string};
 	private errors:Error[] = [];
 	private rules: CheckRule[] = [
 		{
@@ -48,9 +47,9 @@ export class RegexCheck implements Check {
 			snippet: {
 				rule: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
 				min: 0, // min: null means bound will not be checked
-				max: 10, // max: null means bound will not be checked
+				max: 30, // max: null means bound will not be checked
 				error: {
-					message: "Not enough time elements found. Please use <time> for every time occurence.",
+					message: "Not enough or to less time elements found. Please use <time> for every time occurence.",
 					type: "warning"
 				}
 			},
@@ -150,7 +149,6 @@ export class RegexCheck implements Check {
 		this.rules = options['RegexCheck']['rules'] || this.rules;
 
 		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/report-template.html'), "utf8");
-		this.partials = {}
 	}
 
 	public execute(directory: string, callback: (report: Report, errors?: Error[]) => {}): void {
@@ -159,7 +157,7 @@ export class RegexCheck implements Check {
 				let report:Report = new HtmlReport(
 					'Custom checks',
 					this.reportTemplate,
-					this.partials,
+					{},
 					{ reports: this.results }
 				);
 				callback(report, this.errors);
@@ -168,7 +166,7 @@ export class RegexCheck implements Check {
 			}
 		});
 
-		this.rules.forEach((rule) => {
+		this.rules.forEach((rule, ruleIndex) => {
 			Glob(Path.join(directory, rule.files), null, (error, filePaths) => {
 				if(error) {
 					this.errors.push(error);
@@ -183,7 +181,7 @@ export class RegexCheck implements Check {
 						} else {
 							RegexCheck.checkRule(fileData, rule, relativeFilePath, this.results, this.errors);
 						}
-						barrier.finishedTask(filePath+rule.name);
+						barrier.finishedTask(ruleIndex+filePath);
 					});
 				});
 
