@@ -57,7 +57,7 @@ export class StructureMetric implements Check {
 					} else {
 						counts.numberOfFiles++;
 						structure[ 'files' ].push(Path.basename(file));
-						awaiter.finishedTask(file);
+						awaiter.finishedTask(subPath);
 					}
 				});
 			}
