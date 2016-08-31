@@ -14,21 +14,26 @@ export interface CheckRule {
 		rule: RegExp,
 		min: number,
 		max: number,
-		errorMessage: string
+		error: CheckMessage
 	},
 	snippetCheck?: {
 		rule: RegExp,
 		min: number,
 		max: number,
 		valueFormat: string,
-		errorMessage: string
+		error: CheckMessage
 	}
+}
+
+export interface CheckMessage {
+	message: string,
+	type?: string // "error", "info"
 }
 
 export interface CheckRuleResult {
 	rule:CheckRule,
 	occurrence:number,
-	error:string
+	error: CheckMessage
 }
 
 
@@ -38,20 +43,39 @@ export class RegexCheck implements Check {
 	private errors:Error[] = [];
 	private rules: CheckRule[] = [
 		{
-			"name": "Time element",
-			"files": "*.html",
-			"snippet": {
-				"rule": /<time.*>.*<\/time>/igm,
-				"min": 5,
-				"max": 30, // max: null means infinity
-				"errorMessage": "No time elements found. Please use <time> for every time occurence."
+			name: "Time element usage",
+			files: "*.html",
+			snippet: {
+				rule: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+				min: 0, // min: null means bound will not be checked
+				max: 10, // max: null means bound will not be checked
+				error: {
+					message: "Not enough time elements found. Please use <time> for every time occurence.",
+					type: "warning"
+				}
 			},
-			"snippetCheck": {
-				"rule": /<time .*datetime="\d{6}-\d{6}".*>.*<\/time>/igm,
-				"min": 1,
-				"max": 1,
-				"valueFormat": "NUMBER", // 'PERCENT' | 'NUMBER'
-				"errorMessage": "Time element not used correct. Don't forget datetime attribute and content."
+			snippetCheck: {
+				rule: /<time [^<>\/]*datetime="(\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?)"[^<>\/]*>[^<>\/]*<\/time>/igm,
+				min: 1,
+				max: 1,
+				valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
+				error: {
+					message: "Time element not used correct. Don't forget datetime attribute and value (http://www.w3schools.com/tags/att_time_datetime.asp).",
+					type: "error"
+				}
+			}
+		},
+		{
+			name: "Bookmark icon",
+			files: "*.html",
+			snippet: {
+				rule: /<link[^<>\/]*rel="icon"[^<>\/]*\\?>/igm,
+				min: 1,
+				max: 1,
+				error: {
+					message: 'No bookmark icon found.',
+					type: "warning"
+				}
 			}
 		}
 	];
@@ -59,7 +83,7 @@ export class RegexCheck implements Check {
 
 
 	constructor(private options:{ [name: string]: any }) {
-		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/reportTemplate.html'), "utf8");
+		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/report-template.html'), "utf8");
 		this.partials = {}
 	}
 
@@ -67,7 +91,7 @@ export class RegexCheck implements Check {
 		let barrier: Barrier = new Barrier(this.rules.length).then(() => {
 			if(Object.keys(this.results).length > 0) {
 				let report:Report = new HtmlReport(
-					'CSS metrics',
+					'Custom checks',
 					this.reportTemplate,
 					this.partials,
 					{ reports: this.results }
@@ -91,9 +115,9 @@ export class RegexCheck implements Check {
 						if(fileError || !fileData) {
 							this.errors.push(new Error(`Could not read file ${relativeFilePath}. Error ${fileError.message}`));
 						} else {
-							RegexCheck.checkRule(fileData, rule, filePath, this.results, this.errors);
-							barrier.finishedTask(filePath);
+							RegexCheck.checkRule(fileData, rule, relativeFilePath, this.results, this.errors);
 						}
+						barrier.finishedTask(filePath+rule.name);
 					});
 				});
 
@@ -103,9 +127,9 @@ export class RegexCheck implements Check {
 	}
 
 	static checkRule(fileData, rule, filePath, results, errors) {
-		let matches:string[] = fileData.toString().match(rule.snippet.rule);
+		let matches:string[] = fileData.toString().match(rule.snippet.rule) || []; // match returns null if 0 found;
 		if (RegexCheck.countOutOfBounds(matches.length, rule.snippet)) {
-			RegexCheck.addRuleResult(filePath, rule, matches.length, rule.snippet.errorMessage, results);
+			RegexCheck.addRuleResult(filePath, rule, matches.length, rule.snippet.error, results);
 		} else {
 			if (rule.snippetCheck) {
 				RegexCheck.checkSnippet(rule, matches, filePath, results, errors);
@@ -121,7 +145,7 @@ export class RegexCheck implements Check {
 					let snippetMatches: string[] = match.match(snippetCheck.rule) || []; // match returns null if 0 found
 					let occurrence:number = snippetMatches.length;
 					if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
-						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.errorMessage, results);
+						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.error, results);
 					}
 				});
 				break;
@@ -131,7 +155,7 @@ export class RegexCheck implements Check {
 				).length;
 				let occurrence:number = numberOfMatchingSnippetRules / matches.length;
 				if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
-					RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.errorMessage, results);
+					RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.error, results);
 				}
 				break;
 			default:

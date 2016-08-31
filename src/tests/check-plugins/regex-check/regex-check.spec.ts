@@ -19,11 +19,13 @@ describe("Regex check", () => {
 
 	describe("checking simple rules", () => {
 		let simpleRule: CheckRule = <CheckRule>{
-			"snippet": {
-				"rule": /<img[^<>]*>/igm,
-				"min": 3,
-				"max": 5,
-				"errorMessage": "Not enough image elements or to many found."
+			snippet: {
+				rule: /<img[^<>]*>/igm,
+				min: 3,
+				max: 5,
+				error: {
+					message: "Not enough image elements or to many found."
+				}
 			}
 		};
 
@@ -55,7 +57,7 @@ describe("Regex check", () => {
 			expect(results[filePath].length).toEqual(1);
 			expect(results[filePath][0].rule).toEqual(simpleRule);
 			expect(results[filePath][0].occurrence).toBe(2);
-			expect(results[filePath][0].error).toEqual(simpleRule.snippet.errorMessage);
+			expect(results[filePath][0].error).toEqual(simpleRule.snippet.error);
 		});
 
 		it("should return error because of to much images", () => {
@@ -68,7 +70,7 @@ describe("Regex check", () => {
 			RegexCheck.checkRule(fileData, simpleRule, filePath, results, errors);
 			expect(results[filePath].length).toEqual(1);
 			expect(results[filePath][0].occurrence).toBe(6);
-			expect(results[filePath][0].error).toEqual(simpleRule.snippet.errorMessage);
+			expect(results[filePath][0].error).toEqual(simpleRule.snippet.error);
 		});
 
 		it("should not fail on 0 occurrences", () => {
@@ -79,18 +81,20 @@ describe("Regex check", () => {
 			expect(results[filePath].length).toEqual(1);
 			expect(results[filePath][0].rule).toEqual(simpleRule);
 			expect(results[filePath][0].occurrence).toBe(0);
-			expect(results[filePath][0].error).toEqual(simpleRule.snippet.errorMessage);
+			expect(results[filePath][0].error).toEqual(simpleRule.snippet.error);
 		});
 	});
 
 	describe("checking infinity rules", () => {
 		it("should not return error results because #images > min", () => {
 			let simpleRule:CheckRule = <CheckRule>{
-				"snippet": {
-					"rule": /<img[^<>]*>/igm,
-					"min": 3,
-					"max": null,
-					"errorMessage": "Not enough image elements or to many found."
+				snippet: {
+					rule: /<img[^<>]*>/igm,
+					min: 3,
+					max: null,
+					error: {
+						message: "Not enough image elements or to many found."
+					}
 				}
 			};
 			let fileData:string = `
@@ -105,11 +109,13 @@ describe("Regex check", () => {
 
 		it("should not return error results because #images < max", () => {
 			let simpleRule:CheckRule = <CheckRule>{
-				"snippet": {
-					"rule": /<img[^<>]*>/igm,
-					"min": null,
-					"max": 3,
-					"errorMessage": "Not enough image elements or to many found."
+				snippet: {
+					rule: /<img[^<>]*>/igm,
+					min: null,
+					max: 3,
+					error: {
+						message: "Not enough image elements or to many found."
+					}
 				}
 			};
 			let fileData:string = `
@@ -130,11 +136,13 @@ describe("Regex check", () => {
 				files: null,
 				snippet: null,
 				snippetCheck: {
-					"rule": /<img[^<>]*src="[^<>]*"[^<>]*>/igm,
-					"min": 1,
-					"max": 1,
-					"valueFormat": "NUMBER", // 'PERCENT' | 'NUMBER'
-					"errorMessage": "Image needs source attribute."
+					rule: /<img[^<>]*src="[^<>]*"[^<>]*>/igm,
+					min: 1,
+					max: 1,
+					valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
+					error: {
+						message: "Image needs source attribute."
+					}
 				}
 			};
 			let snippets: string[] = [
@@ -151,8 +159,8 @@ describe("Regex check", () => {
 			expect(results[filePath][1].rule).toBe(rule);
 			expect(results[filePath][0].occurrence).toBe(0);
 			expect(results[filePath][1].occurrence).toBe(0);
-			expect(results[filePath][0].error).toEqual(rule.snippetCheck.errorMessage);
-			expect(results[filePath][1].error).toEqual(rule.snippetCheck.errorMessage);
+			expect(results[filePath][0].error).toEqual(rule.snippetCheck.error);
+			expect(results[filePath][1].error).toEqual(rule.snippetCheck.error);
 		});
 
 		it("should return error for to less percentage of used classes", () => {
@@ -161,11 +169,13 @@ describe("Regex check", () => {
 				files: null,
 				snippet: null,
 				snippetCheck: {
-					"rule": /\.[^\s]*\s+\{[^\{\}]*\}/igm,
-					"min": 0.3,
-					"max": 0.5,
-					"valueFormat": "PERCENT", // 'PERCENT' | 'NUMBER'
-					"errorMessage": "To less classes used."
+					rule: /\.[^\s]*\s+\{[^\{\}]*\}/igm,
+					min: 0.3,
+					max: 0.5,
+					valueFormat: "PERCENT", // 'PERCENT' | 'NUMBER'
+					error: {
+						message: "To less classes used."
+					}
 				}
 			};
 			let snippets: string[] = [
@@ -180,7 +190,7 @@ describe("Regex check", () => {
 			expect(results[filePath].length).toEqual(1);
 			expect(results[filePath][0].rule).toBe(rule);
 			expect(results[filePath][0].occurrence).toBe(0.25);
-			expect(results[filePath][0].error).toEqual(rule.snippetCheck.errorMessage);
+			expect(results[filePath][0].error).toEqual(rule.snippetCheck.error);
 		});
 
 		it("should not return error because enough elements have been used", () => {
@@ -190,11 +200,13 @@ describe("Regex check", () => {
 				snippet: null,
 				snippetCheck: {
 					// match lines with element selectors
-					"rule": /^(([^\{\},]*,)*(\s|\t)*[\w\d\s<>~\[\]="]*(\s|\t)*(,[^\{\},]*)*)(\{[^\{\}]*\})/igm,
-					"min": 0.5,
-					"max": 0.7,
-					"valueFormat": "PERCENT",
-					"errorMessage": "To less classes used."
+					rule: /^(([^\{\},]*,)*(\s|\t)*[\w\d\s<>~\[\]="]*(\s|\t)*(,[^\{\},]*)*)(\{[^\{\}]*\})/igm,
+					min: 0.5,
+					max: 0.7,
+					valueFormat: "PERCENT",
+					error: {
+						message: "To less classes used."
+					}
 				}
 			};
 			let snippets: string[] = [
@@ -217,11 +229,13 @@ describe("Regex check", () => {
 				files: null,
 				snippet: null,
 				snippetCheck: {
-					"rule": /[aeou]/igm,
-					"min": 1,
-					"max": 1,
-					"valueFormat": "NUMBER",
-					"errorMessage": "To less vocals."
+					rule: /[aeou]/igm,
+					min: 1,
+					max: 1,
+					valueFormat: "NUMBER",
+					error: {
+						message: "To less vocals."
+					}
 				}
 			};
 
@@ -240,7 +254,7 @@ describe("Regex check", () => {
 				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
 				rule.snippetCheck.min = null;
 				rule.snippetCheck.max = 3;
-				rule.snippetCheck.errorMessage = "To much vocals.";
+				rule.snippetCheck.error.message = "To much vocals.";
 
 				let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
 
@@ -278,20 +292,24 @@ describe("Regex check", () => {
 
 		describe("checking rule and snippet", () => {
 			let rule: CheckRule = {
-				"name": "Time element",
-				"files": "*.html",
-				"snippet": {
-					"rule": /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
-					"min": 1,
-					"max": 3, // max: null means infinity
-					"errorMessage": "No time elements found. Please use <time> for every time occurence."
+				name: "Time element",
+				files: "*.html",
+				snippet: {
+					rule: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+					min: 1,
+					max: 3, // max: null means infinity
+					error: {
+						message: "No time elements found. Please use <time> for every time occurence."
+					}
 				},
 				"snippetCheck": {
-					"rule": /<time [^<>\/]*datetime="\d{4}-\d{2}-\d{2}"[^<>\/]*>[^<>\/]*<\/time>/igm,
-					"min": 1,
-					"max": 1,
-					"valueFormat": "NUMBER", // 'PERCENT' | 'NUMBER'
-					"errorMessage": "Time element not used correct. Don't forget datetime attribute and content."
+					rule: /<time [^<>\/]*datetime="\d{4}-\d{2}-\d{2}"[^<>\/]*>[^<>\/]*<\/time>/igm,
+					min: 1,
+					max: 1,
+					valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
+					error: {
+						message: "Time element not used correct. Don't forget datetime attribute and content."
+					}
 				}
 			};
 
@@ -313,7 +331,7 @@ describe("Regex check", () => {
 				expect(results[filePath].length).toEqual(1);
 				expect(results[filePath][0].rule).toEqual(rule);
 				expect(results[filePath][0].occurrence).toEqual(0);
-				expect(results[filePath][0].error).toEqual(rule.snippetCheck.errorMessage);
+				expect(results[filePath][0].error).toEqual(rule.snippetCheck.error);
 			});
 		});
 	});
