@@ -1,6 +1,15 @@
-{{#each reports}}
+{{#each reports as |fileReports fileName|}}
 <h3>{{fileName}}</h3>
-<ul>
-
+<ul class="list-unstyled">
+	{{#each fileReports}}
+		<li>
+			{{#if error.type}}
+			<span class="label {{error.type}}">{{error.type}}</span>
+			{{/if}}
+			<strong>{{rule.name}}</strong>: {{{error.message}}}
+			➜ Found {{occurrence}}.
+			Expected {{#if rule.snippet.min}}{{rule.snippet.min}} < {{/if}}X{{#if rule.snippet.max}} < {{rule.snippet.max}}{{/if}}.
+		</li>
+	{{/each}}
 </ul>
 {{/each}}

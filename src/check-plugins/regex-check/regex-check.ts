@@ -77,12 +77,78 @@ export class RegexCheck implements Check {
 					type: "warning"
 				}
 			}
+		},
+		{
+			name: "Stylesheets",
+			files: "*.html",
+			snippet: {
+				rule: /<link[^<>\/]*rel="stylesheet"[^<>\/]*\\?>/igm,
+				min: 1,
+				max: null,
+				error: {
+					message: 'No stylesheet found',
+					type: "info"
+				}
+			}
 		}
 	];
 	private results: { [name:string]:CheckRuleResult[] } = {};
 
+	/**
+	 * @options available params:
+		{
+			RegexCheck: {
+				rules: [
+					{
+					name: "Time element usage",
+					files: "*.html",
+					snippet: {
+						rule: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+						min: 0, // min: null means bound will not be checked
+						max: 10, // max: null means bound will not be checked
+						error: {
+							message: "Not enough time elements found. Please use <time> for every time occurence.",
+							type: "warning" // "info" | "warning" | "error"
+						}
+					},
+					snippetCheck: {
+						rule: /<time [^<>\/]*datetime="(\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?)"[^<>\/]*>[^<>\/]*<\/time>/igm,
+						min: 1,
+						max: 1,
+						valueFormat: "NUMBER", // "PERCENT" | "NUMBER"
+						error: {
+							message: "Time element not used correct. Don't forget datetime attribute and value (http://www.w3schools.com/tags/att_time_datetime.asp).",
+							type: "error"
+						}
+					}
+				},
+				{
+					name: "Bookmark icon",
+					files: "*.html",
+					snippet: {
+						rule: /<link[^<>\/]*rel="icon"[^<>\/]*\\?>/igm,
+						min: 1,
+						max: 1,
+						error: {
+							message: 'No bookmark icon found.',
+							type: "warning"
+						}
+					}
+				]
+			}
+		}
+	 *
+	 * "NUMBER", "PERCENT":
+	 * NUMBER checks if the number of occurences in the snippet matches the bounds
+	 * Example: min 1, max 2: in the snippets from the snippet rule match must be found
+	 *          1 or 2 occurrences of the snippet check rule matches
+	 * PERCENT checks if the percentage of the matching snippets is between the bounds
+	 * Example: min 0.2, max null: Minimal 40% of the snippet found by the snippet rule match
+	 *          must match the snippet check rule
+	 **/
+	constructor(options:{ [name: string]: any }) {
+		this.rules = options['RegexCheck']['rules'] || this.rules;
 
-	constructor(private options:{ [name: string]: any }) {
 		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/report-template.html'), "utf8");
 		this.partials = {}
 	}
