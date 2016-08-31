@@ -263,7 +263,35 @@ describe("Regex check", () => {
 
 				expect(results[filePath]).toBeUndefined();
 			});
+		});
 
+		describe("checking rule and snippet", () => {
+			let rule: CheckRule = {
+				"name": "Time element",
+				"files": "*.html",
+				"snippet": {
+					"rule": /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+					"min": 1,
+					"max": 3, // max: null means infinity
+					"errorMessage": "No time elements found. Please use <time> for every time occurence."
+				},
+				"snippetCheck": {
+					"rule": /<time [^<>\/]*datetime="\d{4}-\d{2}-\d{2}"[^<>\/]*>[^<>\/]*<\/time>/igm,
+					"min": 1,
+					"max": 1,
+					"valueFormat": "NUMBER", // 'PERCENT' | 'NUMBER'
+					"errorMessage": "Time element not used correct. Don't forget datetime attribute and content."
+				}
+			};
+
+			it("should not return errors", () => {
+				let fileData: string = `<h1>Test</h1>
+				<p><time datetime="1850-08-02">2.8.1850</time>bla bla bla.</p>
+				<footer>Published on <time datetime="2016-08-01">1. Aug. 16</time>.</footer>`;
+
+				RegexCheck.checkRule(fileData, rule, filePath, results, errors);
+				expect(results[filePath]).toBeUndefined();
+			})
 		});
 	});
 });
