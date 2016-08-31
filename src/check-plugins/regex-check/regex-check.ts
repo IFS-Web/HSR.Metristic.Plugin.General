@@ -140,7 +140,7 @@ export class RegexCheck implements Check {
 	};
 
 	private static countOutOfBounds(count, bounds) {
-		return !(typeof(count) !== 'undefined' && (bounds.min == null || count >= bounds.min) && (bounds.max == null || count <= bounds.max));
+		return !(typeof(count) !== 'undefined' && typeof(bounds) !== 'undefined' && (bounds.min == null || count >= bounds.min) && (bounds.max == null || count <= bounds.max));
 	};
 
 	private static addRuleResult(filePath, rule, occurrence, errorMessage, results) {

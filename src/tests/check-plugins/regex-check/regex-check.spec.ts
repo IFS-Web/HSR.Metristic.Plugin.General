@@ -4,8 +4,18 @@ import {RegexCheck, CheckRule, CheckRuleResult} from "../../../check-plugins/reg
 
 
 describe("Regex check", () => {
-	let errors = [];
 	let filePath: string = '/abc/def.html';
+	let results;
+	let errors;
+
+	beforeEach(() => {
+		errors = [];
+		results = {};
+	});
+
+	afterEach(() => {
+		expect(errors).toEqual([]);
+	});
 
 	describe("checking simple rules", () => {
 		let simpleRule: CheckRule = <CheckRule>{
@@ -18,7 +28,6 @@ describe("Regex check", () => {
 		};
 
 		it("should not return error results because #images matches", () => {
-			let results = {};
 			let fileData: string = `<p>Test</p>
 			<img><img><img>
 			<div><img
@@ -30,7 +39,6 @@ describe("Regex check", () => {
 		});
 
 		it("should not return error results because #images matches", () => {
-			let results = {};
 			let fileData: string = `<img><img><img>`;
 
 			RegexCheck.checkRule(fileData, simpleRule, filePath, results, errors);
@@ -38,7 +46,6 @@ describe("Regex check", () => {
 		});
 
 		it("should return error because of to less images", () => {
-			let results = {};
 			let fileData: string = `<p>Test</p>
 			<img>
 			<img src="abc.jpg">
@@ -52,7 +59,6 @@ describe("Regex check", () => {
 		});
 
 		it("should return error because of to much images", () => {
-			let results = {};
 			let fileData: string = `<p>Test</p>
 			<img><img><img><img><img
 			src="bllc.png" alt="bluff" />
@@ -76,7 +82,6 @@ describe("Regex check", () => {
 					"errorMessage": "Not enough image elements or to many found."
 				}
 			};
-			let results = {};
 			let fileData:string = `
 			<img><img
 			src="bllc.png" alt="bluff" />
@@ -96,7 +101,6 @@ describe("Regex check", () => {
 					"errorMessage": "Not enough image elements or to many found."
 				}
 			};
-			let results = {};
 			let fileData:string = `
 			<img><img
 			src="bllc.png" alt="bluff" />
@@ -110,7 +114,6 @@ describe("Regex check", () => {
 
 	describe("checking snippet rules", () => {
 		it("should return errors for missing src attributes", () => {
-			let results = {};
 			let rule: CheckRule = {
 				name: null,
 				files: null,
@@ -142,7 +145,6 @@ describe("Regex check", () => {
 		});
 
 		it("should return error for to less percentage of used classes", () => {
-			let results = {};
 			let rule: CheckRule = {
 				name: null,
 				files: null,
@@ -171,7 +173,6 @@ describe("Regex check", () => {
 		});
 
 		it("should not return error because enough elements have been used", () => {
-			let results = {};
 			let rule: CheckRule = {
 				name: null,
 				files: null,
@@ -199,88 +200,70 @@ describe("Regex check", () => {
 			expect(results[filePath]).toBeUndefined();
 		});
 
-		it("should not return error if absolute max is null", () => {
-			let results = {};
-			let rule: CheckRule = {
+		describe("having null bounds", () => {
+			let defaultRule: CheckRule = {
 				name: null,
 				files: null,
 				snippet: null,
 				snippetCheck: {
 					"rule": /[aeou]/igm,
 					"min": 1,
-					"max": null,
+					"max": 1,
 					"valueFormat": "NUMBER",
 					"errorMessage": "To less vocals."
 				}
 			};
-			let snippets: string[] = ['abc', 'def', 'ago', 'aeo'];
 
-			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+			it("should not return error if absolute max is null", () => {
+				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				rule.snippetCheck.max = null;
 
-			expect(results[filePath]).toBeUndefined();
-		});
+				let snippets: string[] = ['abc', 'def', 'ago', 'aeo'];
 
-		it("should not return error if absolute min is null", () => {
-			let results = {};
-			let rule: CheckRule = {
-				name: null,
-				files: null,
-				snippet: null,
-				snippetCheck: {
-					"rule": /[aeou]/igm,
-					"min": null,
-					"max": 3,
-					"valueFormat": "NUMBER",
-					"errorMessage": "To much vocals."
-				}
-			};
-			let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
+				RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
 
-			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+				expect(results[filePath]).toBeUndefined();
+			});
 
-			expect(results[filePath]).toBeUndefined();
-		});
+			it("should not return error if absolute min is null", () => {
+				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				rule.snippetCheck.min = null;
+				rule.snippetCheck.max = 3;
+				rule.snippetCheck.errorMessage = "To much vocals.";
 
-		it("should not return error if percentage max is null", () => {
-			let results = {};
-			let rule: CheckRule = {
-				name: null,
-				files: null,
-				snippet: null,
-				snippetCheck: {
-					"rule": /[aeou]/igm,
-					"min": 0.4,
-					"max": null,
-					"valueFormat": "PERCENT",
-					"errorMessage": "To less vocals."
-				}
-			};
-			let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
+				let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
 
-			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+				RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
 
-			expect(results[filePath]).toBeUndefined();
-		});
+				expect(results[filePath]).toBeUndefined();
+			});
 
-		it("should not return error if percentage min is null", () => {
-			let results = {};
-			let rule: CheckRule = {
-				name: null,
-				files: null,
-				snippet: null,
-				snippetCheck: {
-					"rule": /[aeou]/igm,
-					"min": null,
-					"max": 0.5,
-					"valueFormat": "PERCENTAGE",
-					"errorMessage": "To much vocals."
-				}
-			};
-			let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
+			it("should not return error if percentage max is null", () => {
+				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				rule.snippetCheck.min = 0.4;
+				rule.snippetCheck.max = null;
+				rule.snippetCheck.valueFormat = "PERCENT";
 
-			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+				let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
 
-			expect(results[filePath]).toBeUndefined();
+				RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+
+				expect(results[filePath]).toBeUndefined();
+			});
+
+			it("should not return error if percentage min is null", () => {
+				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				rule.snippetCheck.min = null;
+				rule.snippetCheck.max = 0.5;
+				rule.snippetCheck.valueFormat = "PERCENT";
+
+				let snippets: string[] = ['abc', 'def', 'ghi', 'jkl'];
+
+				RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
+
+				expect(results[filePath]).toBeUndefined();
+			});
+
 		});
 	});
 });
