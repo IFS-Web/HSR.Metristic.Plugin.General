@@ -70,6 +70,17 @@ describe("Regex check", () => {
 			expect(results[filePath][0].occurrence).toBe(6);
 			expect(results[filePath][0].error).toEqual(simpleRule.snippet.errorMessage);
 		});
+
+		it("should not fail on 0 occurrences", () => {
+			let fileData: string = `<p>Test</p>`;
+
+			RegexCheck.checkRule(fileData, simpleRule, filePath, results, errors);
+
+			expect(results[filePath].length).toEqual(1);
+			expect(results[filePath][0].rule).toEqual(simpleRule);
+			expect(results[filePath][0].occurrence).toBe(0);
+			expect(results[filePath][0].error).toEqual(simpleRule.snippet.errorMessage);
+		});
 	});
 
 	describe("checking infinity rules", () => {
