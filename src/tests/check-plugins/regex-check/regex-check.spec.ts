@@ -291,7 +291,19 @@ describe("Regex check", () => {
 
 				RegexCheck.checkRule(fileData, rule, filePath, results, errors);
 				expect(results[filePath]).toBeUndefined();
-			})
+			});
+
+			it("should return an error for a missing datetime", () => {
+				let fileData: string = `<h1>Test</h1>
+				<p><time>2.8.1850</time>bla bla bla.</p>
+				<footer>Published on <time datetime="2016-08-01">1. Aug. 16</time>.</footer>`;
+
+				RegexCheck.checkRule(fileData, rule, filePath, results, errors);
+				expect(results[filePath].length).toEqual(1);
+				expect(results[filePath][0].rule).toEqual(rule);
+				expect(results[filePath][0].occurrence).toEqual(0);
+				expect(results[filePath][0].error).toEqual(rule.snippetCheck.errorMessage);
+			});
 		});
 	});
 });
