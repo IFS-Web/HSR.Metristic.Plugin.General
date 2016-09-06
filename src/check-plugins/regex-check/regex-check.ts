@@ -11,7 +11,7 @@ export interface CheckRule {
 	name: string,
 	files: string,
 	snippet: {
-		rule: RegExp,
+		rule: RegExp[],
 		min: number,
 		max: number,
 		error: CheckMessage
@@ -45,7 +45,7 @@ export class RegexCheck implements Check {
 			name: "Time element usage",
 			files: "*.html",
 			snippet: {
-				rule: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+				rule: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
 				min: 0, // min: null means bound will not be checked
 				max: 30, // max: null means bound will not be checked
 				error: {
@@ -68,7 +68,7 @@ export class RegexCheck implements Check {
 			name: "Bookmark icon",
 			files: "*.html",
 			snippet: {
-				rule: /<link[^<>]*rel="icon"[^<>]*\/?>/igm,
+				rule: [/<link[^<>]*rel="icon"[^<>]*\/?>/igm],
 				min: 1,
 				max: 1,
 				error: {
@@ -81,7 +81,7 @@ export class RegexCheck implements Check {
 			name: "Stylesheets",
 			files: "*.html",
 			snippet: {
-				rule: /<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm,
+				rule: [/<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm],
 				min: 1,
 				max: null,
 				error: {
@@ -191,7 +191,7 @@ export class RegexCheck implements Check {
 	}
 
 	static checkRule(fileData, rule, filePath, results, errors) {
-		let matches:string[] = fileData.toString().match(rule.snippet.rule) || []; // match returns null if 0 found;
+		let matches:string[] = fileData.toString().match(rule.snippet.rule[0]) || []; // match returns null if 0 found;
 		if (RegexCheck.countOutOfBounds(matches.length, rule.snippet)) {
 			RegexCheck.addRuleResult(filePath, rule, matches.length, rule.snippet.error, results);
 		} else {

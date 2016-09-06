@@ -20,7 +20,7 @@ describe("Regex check", () => {
 	describe("checking simple rules", () => {
 		let simpleRule: CheckRule = <CheckRule>{
 			snippet: {
-				rule: /<img[^<>]*>/igm,
+				rule: [/<img[^<>]*>/igm],
 				min: 3,
 				max: 5,
 				error: {
@@ -89,7 +89,7 @@ describe("Regex check", () => {
 		it("should not return error results because #images > min", () => {
 			let simpleRule:CheckRule = <CheckRule>{
 				snippet: {
-					rule: /<img[^<>]*>/igm,
+					rule: [/<img[^<>]*>/igm],
 					min: 3,
 					max: null,
 					error: {
@@ -110,7 +110,7 @@ describe("Regex check", () => {
 		it("should not return error results because #images < max", () => {
 			let simpleRule:CheckRule = <CheckRule>{
 				snippet: {
-					rule: /<img[^<>]*>/igm,
+					rule: [/<img[^<>]*>/igm],
 					min: null,
 					max: 3,
 					error: {
@@ -295,7 +295,7 @@ describe("Regex check", () => {
 				name: "Time element",
 				files: "*.html",
 				snippet: {
-					rule: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+					rule: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
 					min: 1,
 					max: 3, // max: null means infinity
 					error: {
