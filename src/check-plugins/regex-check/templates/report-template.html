@@ -7,8 +7,23 @@
 			<span class="label {{error.type}}">{{error.type}}</span>
 			{{/if}}
 			<strong>{{rule.name}}</strong>: {{{error.message}}}
-			{{#compare rule.snippet.patterns.length '<=' 1}}➜ Found {{occurrence}}{{/compare}}.
-			Expected {{#if rule.snippet.min}}{{rule.snippet.min}} &lt; {{/if}}X{{#if rule.snippet.max}} &lt; {{rule.snippet.max}}{{/if}}.
+			<ul class="list-unstyled">
+				<li>&nbsp;➜
+					{{#compare rule.snippet.patterns.length '<=' 1}}
+						<strong>Found</strong> {{occurrence}},
+					{{/compare}}
+					<strong>Expected</strong>
+					{{#compare rule.snippet.min '!=' null}}{{rule.snippet.min}} &lt; {{/compare}}X{{#compare rule.snippet.max '!=' null}} &lt; {{rule.snippet.max}}{{/compare}}
+				</li>
+				{{#if patternsFailed}}
+					<li>&nbsp;➜
+						<strong>Failed items</strong>:
+						{{#each patternsFailed}}
+							<i>{{this}}</i>{{#unless @last}}, {{/unless}}
+						{{/each}}
+					</li>
+				{{/if}}
+			</ul>
 		</li>
 	{{/each}}
 </ul>

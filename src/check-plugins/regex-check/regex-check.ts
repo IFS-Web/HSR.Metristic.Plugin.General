@@ -12,6 +12,7 @@ export interface CheckRule {
 	files: string,
 	snippet: {
 		patterns: RegExp[],
+		patternLabels?: string[],
 		min: number,
 		max: number,
 		error: CheckMessage
@@ -33,7 +34,9 @@ export interface CheckMessage {
 export interface CheckRuleResult {
 	rule:CheckRule,
 	occurrence:number,
-	error: CheckMessage
+	error: CheckMessage,
+	patternsFailed?: string[],
+	patternsSucceeded?: string[]
 }
 
 
@@ -102,7 +105,7 @@ export class RegexCheck implements Check {
 					name: "Time element usage",
 					files: "*.html",
 					snippet: {
-						patterns: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+						patterns: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
 						min: 0, // min: null means bound will not be checked
 						max: 10, // max: null means bound will not be checked
 						error: {
@@ -111,7 +114,7 @@ export class RegexCheck implements Check {
 						}
 					},
 					snippetCheck: {
-						pattern: /<time [^<>\/]*datetime="(\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?)"[^<>\/]*>[^<>\/]*<\/time>/igm,
+						pattern: [/<time [^<>\/]*datetime="(\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?)"[^<>\/]*>[^<>\/]*<\/time>/igm],
 						min: 1,
 						max: 1,
 						valueFormat: "NUMBER", // "PERCENT" | "NUMBER"
@@ -125,7 +128,7 @@ export class RegexCheck implements Check {
 					name: "Bookmark icon",
 					files: "*.html",
 					snippet: {
-						patterns: /<link[^<>\/]*rel="icon"[^<>\/]*\\?>/igm,
+						patterns: [/<link[^<>\/]*rel="icon"[^<>\/]*\\?>/igm],
 						min: 1,
 						max: 1,
 						error: {
@@ -133,8 +136,44 @@ export class RegexCheck implements Check {
 							type: "warning"
 						}
 					}
-				]
-			}
+				},
+				{
+					name: "Required elements",
+					files: "*.html",
+					snippet: {
+						patterns: [
+							/<address[^<>]*>/igm,
+							/<meta[^<>]*name="\w*"[^<>]*>/igm,
+							/<link[^<>]*rel="icon"[^<>]*>/igm,
+							/<iframe[^<>]*>/igm,
+							/<track[^<>]*>/igm,
+							/<dl>((?!<\/dl>)[\S\s])*<\/dl>/igm,
+							/<ul>((?!<\/ul>)[\S\s])*<\/ul>/igm,
+							/<ol>((?!<\/ol>)[\S\s])*<\/ol>/igm,
+							/<main[^<>]*>/igm,
+							/<nav[^<>]*>/igm,
+							/<aside[^<>]*>/igm,
+							/<article[^<>]*>/igm,
+							/<header[^<>]*>/igm,
+							/<footer[^<>]*>/igm,
+							/<figure[^<>]*>/igm,
+							/<figcaption[^<>]*>/igm,
+							/<small[^<>]*>/igm,
+							/<object[^<>]*>/igm,
+							/<form[^<>]*>/igm
+						],
+						patternLabels: [
+							'address', 'meta', 'link', 'iframe', 'track', 'definition list', 'unordered list', 'ordered list', 'main', 'nav', 'aside', 'article', 'header', 'footer', 'figure', 'figcaption', 'small', 'object', 'form'
+						],
+						min: 1,
+						max: null,
+						error: {
+							message: "Some of the following expected elements not found: address, meta, bookmark icon, iframe, video track, definition-, un- y ordered list, main, nav, aside, article, header, footer, figure, figcaption, small, object, form",
+							type: "error"
+						}
+					}
+				},
+			]
 		}
 	 *
 	 * "NUMBER", "PERCENT":
@@ -191,13 +230,25 @@ export class RegexCheck implements Check {
 	}
 
 	static checkRule(fileData, rule, filePath, results, errors) {
+		let patternsFailed: string[] = [];
+		let patternsSucceeded: string[] = [];
 		let matchList: string[][] = rule.snippet.patterns.map(
 			(pattern) => fileData.toString().match(pattern) || [] // match returns null if 0 found;
 		);
+		let patternsOutOfBounds: boolean[] = matchList.map((matches) => RegexCheck.countOutOfBounds(matches.length, rule.snippet));
+		if(rule.snippet.patternLabels) {
+			patternsOutOfBounds.forEach((isFailed, index) => {
+				if (isFailed) {
+					patternsFailed.push(rule.snippet.patternLabels[ index ] || null);
+				} else {
+					patternsSucceeded.push(rule.snippet.patternLabels[ index ] || null);
+				}
+			});
+		}
 
-		if (matchList.some((matches) => RegexCheck.countOutOfBounds(matches.length, rule.snippet))) {
+		if(patternsOutOfBounds.some((isFailed) => isFailed)) {
 			let averageLength: number = matchList.reduce((previous, current) => previous+current.length,0)/matchList.length;
-			RegexCheck.addRuleResult(filePath, rule, averageLength, rule.snippet.error, results);
+			RegexCheck.addRuleResult(filePath, rule, averageLength, rule.snippet.error, results, patternsFailed, patternsSucceeded);
 		} else {
 			if (rule.snippetCheck) {
 				let allMatches: string[] = matchList.reduce(
@@ -238,7 +289,7 @@ export class RegexCheck implements Check {
 		return !(typeof(count) !== 'undefined' && typeof(bounds) !== 'undefined' && (bounds.min == null || count >= bounds.min) && (bounds.max == null || count <= bounds.max));
 	};
 
-	private static addRuleResult(filePath, rule, occurrence, errorMessage, results) {
+	private static addRuleResult(filePath, rule, occurrence, errorMessage, results, patternsFailed?, patternsSucceeded?) {
 		if (!results[ filePath ]) {
 			results[ filePath ] = [];
 		}
@@ -247,6 +298,10 @@ export class RegexCheck implements Check {
 			occurrence: occurrence,
 			error: errorMessage
 		};
+		if(patternsFailed && patternsSucceeded) {
+			result['patternsFailed'] = patternsFailed;
+			result['patternsSucceeded'] = patternsSucceeded;
+		}
 		results[ filePath ].push(result);
 	};
 }
