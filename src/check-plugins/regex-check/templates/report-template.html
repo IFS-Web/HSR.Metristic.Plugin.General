@@ -7,7 +7,7 @@
 			<span class="label {{error.type}}">{{error.type}}</span>
 			{{/if}}
 			<strong>{{rule.name}}</strong>: {{{error.message}}}
-			➜ Found {{occurrence}}.
+			{{#compare rule.snippet.patterns.length '<=' 1}}➜ Found {{occurrence}}{{/compare}}.
 			Expected {{#if rule.snippet.min}}{{rule.snippet.min}} &lt; {{/if}}X{{#if rule.snippet.max}} &lt; {{rule.snippet.max}}{{/if}}.
 		</li>
 	{{/each}}

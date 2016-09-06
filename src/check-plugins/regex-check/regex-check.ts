@@ -11,13 +11,13 @@ export interface CheckRule {
 	name: string,
 	files: string,
 	snippet: {
-		rule: RegExp[],
+		patterns: RegExp[],
 		min: number,
 		max: number,
 		error: CheckMessage
 	},
 	snippetCheck?: {
-		rule: RegExp,
+		pattern: RegExp,
 		min: number,
 		max: number,
 		valueFormat: string,
@@ -45,7 +45,7 @@ export class RegexCheck implements Check {
 			name: "Time element usage",
 			files: "*.html",
 			snippet: {
-				rule: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
+				patterns: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
 				min: 0, // min: null means bound will not be checked
 				max: 30, // max: null means bound will not be checked
 				error: {
@@ -54,7 +54,7 @@ export class RegexCheck implements Check {
 				}
 			},
 			snippetCheck: {
-				rule: /<time [^<>\/]*datetime="((\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?))"[^<>\/]*>[^<>\/]*<\/time>/igm,
+				pattern: /<time [^<>\/]*datetime="((\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?))"[^<>\/]*>[^<>\/]*<\/time>/igm,
 				min: 1,
 				max: 1,
 				valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
@@ -68,7 +68,7 @@ export class RegexCheck implements Check {
 			name: "Bookmark icon",
 			files: "*.html",
 			snippet: {
-				rule: [/<link[^<>]*rel="icon"[^<>]*\/?>/igm],
+				patterns: [/<link[^<>]*rel="icon"[^<>]*\/?>/igm],
 				min: 1,
 				max: 1,
 				error: {
@@ -81,7 +81,7 @@ export class RegexCheck implements Check {
 			name: "Stylesheets",
 			files: "*.html",
 			snippet: {
-				rule: [/<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm],
+				patterns: [/<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm],
 				min: 1,
 				max: null,
 				error: {
@@ -97,12 +97,12 @@ export class RegexCheck implements Check {
 	 * @options available params:
 		{
 			RegexCheck: {
-				rules: [
+				patterns: [
 					{
 					name: "Time element usage",
 					files: "*.html",
 					snippet: {
-						rule: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+						patterns: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
 						min: 0, // min: null means bound will not be checked
 						max: 10, // max: null means bound will not be checked
 						error: {
@@ -111,7 +111,7 @@ export class RegexCheck implements Check {
 						}
 					},
 					snippetCheck: {
-						rule: /<time [^<>\/]*datetime="(\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?)"[^<>\/]*>[^<>\/]*<\/time>/igm,
+						pattern: /<time [^<>\/]*datetime="(\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?)"[^<>\/]*>[^<>\/]*<\/time>/igm,
 						min: 1,
 						max: 1,
 						valueFormat: "NUMBER", // "PERCENT" | "NUMBER"
@@ -125,7 +125,7 @@ export class RegexCheck implements Check {
 					name: "Bookmark icon",
 					files: "*.html",
 					snippet: {
-						rule: /<link[^<>\/]*rel="icon"[^<>\/]*\\?>/igm,
+						patterns: /<link[^<>\/]*rel="icon"[^<>\/]*\\?>/igm,
 						min: 1,
 						max: 1,
 						error: {
@@ -139,11 +139,11 @@ export class RegexCheck implements Check {
 	 *
 	 * "NUMBER", "PERCENT":
 	 * NUMBER checks if the number of occurences in the snippet matches the bounds
-	 * Example: min 1, max 2: in the snippets from the snippet rule match must be found
-	 *          1 or 2 occurrences of the snippet check rule matches
+	 * Example: min 1, max 2: in the snippets from the snippet patterns match must be found
+	 *          1 or 2 occurrences of the snippet check patterns matches
 	 * PERCENT checks if the percentage of the matching snippets is between the bounds
-	 * Example: min 0.2, max null: Minimal 40% of the snippet found by the snippet rule match
-	 *          must match the snippet check rule
+	 * Example: min 0.2, max null: Minimal 40% of the snippet found by the snippet patterns match
+	 *          must match the snippet check patterns
 	 **/
 	constructor(options:{ [name: string]: any }) {
 		this.rules = options['RegexCheck']['rules'] || this.rules;
@@ -191,12 +191,19 @@ export class RegexCheck implements Check {
 	}
 
 	static checkRule(fileData, rule, filePath, results, errors) {
-		let matches:string[] = fileData.toString().match(rule.snippet.rule[0]) || []; // match returns null if 0 found;
-		if (RegexCheck.countOutOfBounds(matches.length, rule.snippet)) {
-			RegexCheck.addRuleResult(filePath, rule, matches.length, rule.snippet.error, results);
+		let matchList: string[][] = rule.snippet.patterns.map(
+			(pattern) => fileData.toString().match(pattern) || [] // match returns null if 0 found;
+		);
+
+		if (matchList.some((matches) => RegexCheck.countOutOfBounds(matches.length, rule.snippet))) {
+			let averageLength: number = matchList.reduce((previous, current) => previous+current.length,0)/matchList.length;
+			RegexCheck.addRuleResult(filePath, rule, averageLength, rule.snippet.error, results);
 		} else {
 			if (rule.snippetCheck) {
-				RegexCheck.checkSnippet(rule, matches, filePath, results, errors);
+				let allMatches: string[] = matchList.reduce(
+					(previous: string[], current: string[]) => previous.concat(current)
+				, []);
+				RegexCheck.checkSnippet(rule, allMatches, filePath, results, errors);
 			}
 		}
 	};
@@ -206,7 +213,7 @@ export class RegexCheck implements Check {
 		switch (snippetCheck.valueFormat) {
 			case("NUMBER"):
 				matches.forEach((match) => {
-					let snippetMatches: string[] = match.match(snippetCheck.rule) || []; // match returns null if 0 found
+					let snippetMatches: string[] = match.match(snippetCheck.pattern) || []; // match returns null if 0 found
 					let occurrence:number = snippetMatches.length;
 					if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
 						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.error, results);
@@ -215,7 +222,7 @@ export class RegexCheck implements Check {
 				break;
 			case("PERCENT"):
 				let numberOfMatchingSnippetRules:number = matches.filter(
-					(matchResult) => Boolean(matchResult.match(snippetCheck.rule))
+					(matchResult) => Boolean(matchResult.match(snippetCheck.pattern))
 				).length;
 				let occurrence:number = numberOfMatchingSnippetRules / matches.length;
 				if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
@@ -227,7 +234,7 @@ export class RegexCheck implements Check {
 		}
 	};
 
-	private static countOutOfBounds(count, bounds) {
+	private static countOutOfBounds(count: number, bounds: {min: number, max: number}) {
 		return !(typeof(count) !== 'undefined' && typeof(bounds) !== 'undefined' && (bounds.min == null || count >= bounds.min) && (bounds.max == null || count <= bounds.max));
 	};
 
