@@ -130,5 +130,46 @@ export const rules = {
 				type: "warning"
 			}
 		}
+	},
+	articleUsage: {
+		name: "Usage of article",
+		files: "*/*.html",
+		snippet: {
+			patterns: [
+				/<article[^<>]*>((?!<\/article>)[\S\s])*<\/article>/igm
+			],
+			min: 5,
+			max: 10,
+			error: {
+				message: 'To less or to many article elements found.',
+				type: "warning"
+			}
+		},
+		snippetCheck: {
+			pattern: /<article[^<>]*>((?!<\/article>)[\S\s])*<header[^<>]*>((?!<\/article>)[\S\s])*<h\d>((?!<\/article>)[\S\s])*<\/h\d>((?!<\/article>)[\S\s])*<\/header>((?!<\/article>)[\S\s])*<\/article>/igm,
+			min: 1,
+			max: 1,
+			valueFormat: "NUMBER",
+			error: {
+				message: "Article element not used complete. Don't forget header.",
+				type: "warning",
+				hideOccurrencesInReport: true
+			}
+		}
+	},
+	completeArticleUsage: {
+		name: "Usage of complete articles",
+		files: "*/*.html",
+		snippet: {
+			patterns: [
+				/<article[^<>]*>((?!<\/article>)[\S\s])*<header[^<>]*>((?!<\/article>)[\S\s])*<h\d>((?!<\/article>)[\S\s])*<\/h\d>((?!<\/article>)[\S\s])*<\/header>((?!<\/article>)[\S\s])*<footer[^<>]*>((?!<\/article>)[\S\s])*<small[^<>]*>((?!<\/article>)[\S\s])*<\/small>((?!<\/article>)[\S\s])*<\/footer>((?!<\/article>)[\S\s])*<\/article>/igm,
+			],
+			min: 5,
+			max: null,
+			error: {
+				message: 'Not enough articles found containing header, footer and legal declaration.',
+				type: "error"
+			}
+		}
 	}
 };
