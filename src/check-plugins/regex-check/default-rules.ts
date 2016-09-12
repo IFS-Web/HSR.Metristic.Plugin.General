@@ -186,5 +186,20 @@ export const rules = {
 				type: "error"
 			}
 		}
+	},
+	figureUsage: {
+		name: "Usage of figures",
+		files: "*/*.html",
+		snippet: {
+			patterns: [
+				/<figure[^<>]*>((?!<\/figure>)[\S\s])*(<(img|video|audio|object|iframe)[^<>]*>((?!<\/figure>)[\S\s])*)+((?!<\/figure>)[\S\s])*<figcaption[^<>]*>((?!<\/figure>)[\S\s])*<\/figcaption>((?!<\/figure>)[\S\s])*<\/figure>/igm
+			],
+			min: 4,
+			max: null,
+			error: {
+				message: "Not enough figures used. Don't forget to use figcaption.",
+				type: "error"
+			}
+		}
 	}
 };
