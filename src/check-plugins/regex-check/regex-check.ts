@@ -218,7 +218,7 @@ export class RegexCheck implements Check {
 
 		this.rules.forEach((rule, ruleIndex) => {
 			if(!rule || !rule.name || !rule.files || !rule.snippet || !rule.snippet.patterns || !(rule.snippet.patterns.length > 0) || !rule.snippet.error) {
-				this.errors.push(new Error(`Incorrect rule ${rule.name} (rule ${ruleIndex}.`));
+				this.errors.push(new Error(`Incorrect rule "${rule.name}" (Rule ${ruleIndex}).`));
 				barrier.finishedTask(rule);
 			} else {
 				Glob(Path.join(directory, rule.files), null, (error, filePaths) => {
