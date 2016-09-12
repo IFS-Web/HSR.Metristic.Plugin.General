@@ -1,7 +1,8 @@
-import {CheckRule} from "regex-check";
+import {CheckRule} from "./regex-check";
 
 
-export const rules: {[name:string]: CheckRule} = {
+// export const rules: { [name: string]: CheckRule } = {
+export const rules = {
 	hreflangAttribute: {
 		name: "Hreflang attribute for external links",
 			files: "*/*.html",
