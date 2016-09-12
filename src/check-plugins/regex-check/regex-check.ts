@@ -209,26 +209,31 @@ export class RegexCheck implements Check {
 		});
 
 		this.rules.forEach((rule, ruleIndex) => {
-			Glob(Path.join(directory, rule.files), null, (error, filePaths) => {
-				if(error) {
-					this.errors.push(error);
-				}
-				barrier.expand(filePaths.length);
-
-				filePaths.forEach((filePath) => {
-					FS.readFile(filePath, (fileError, fileData) => {
-						let relativeFilePath: string = filePath.replace(directory, '');
-						if(fileError || !fileData) {
-							this.errors.push(new Error(`Could not read file ${relativeFilePath}. Error ${fileError.message}`));
-						} else {
-							RegexCheck.checkRule(fileData, rule, relativeFilePath, this.results, this.errors);
-						}
-						barrier.finishedTask(ruleIndex+filePath);
-					});
-				});
-
+			if(!rule.name || !rule.files || !rule.snippet || !rule.snippet.patterns || !rule.snippet.error) {
+				this.errors.push(new Error(`Incorrect rule ${rule.name} (rule ${ruleIndex}.`));
 				barrier.finishedTask(rule);
-			});
+			} else {
+				Glob(Path.join(directory, rule.files), null, (error, filePaths) => {
+					if (error) {
+						this.errors.push(error);
+					}
+					barrier.expand(filePaths.length);
+
+					filePaths.forEach((filePath) => {
+						FS.readFile(filePath, (fileError, fileData) => {
+							let relativeFilePath:string = filePath.replace(directory, '');
+							if (fileError || !fileData) {
+								this.errors.push(new Error(`Could not read file ${relativeFilePath}. Error ${fileError.message}`));
+							} else {
+								RegexCheck.checkRule(fileData, rule, relativeFilePath, this.results, this.errors);
+							}
+							barrier.finishedTask(ruleIndex + filePath);
+						});
+					});
+
+					barrier.finishedTask(rule);
+				});
+			}
 		});
 	}
 
