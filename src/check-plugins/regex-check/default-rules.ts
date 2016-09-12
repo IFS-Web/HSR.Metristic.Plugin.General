@@ -10,7 +10,7 @@ export const rules: {[name:string]: CheckRule} = {
 				min: 2,
 				max: 4,
 				error: {
-				message: "Not enough links with hreflang attribute found.",
+					message: "Not enough links with hreflang attribute found.",
 					type: "error",
 					hideOccurrencesInReport: true
 			}
@@ -24,7 +24,7 @@ export const rules: {[name:string]: CheckRule} = {
 				min: 15,
 				max: null,
 				error: {
-				message: "Not enough time elements found. Please use <time> for every time designation.",
+					message: "Not enough time elements found. Please use <time> for every time designation.",
 					type: "warning"
 			}
 		},
@@ -34,25 +34,25 @@ export const rules: {[name:string]: CheckRule} = {
 				max: 1,
 				valueFormat: "NUMBER",
 				error: {
-				message: "Time element not used correct. Don't forget datetime attribute and value (http://www.w3schools.com/tags/att_time_datetime.asp).",
+					message: "Time element not used correct. Don't forget datetime attribute and value (http://www.w3schools.com/tags/att_time_datetime.asp).",
 					type: "error"
 			}
 		}
 	},
 	unexpectedElementsUsage: {
 		name: "Unexpected elements usage",
-			files: "*/*.html",
-			snippet: {
+		files: "*/*.html",
+		snippet: {
 			// [\S\s] = all characters incl. whitespace
 			// ((?!<(\/?dl|\/?nav)>)[\S\s])* = all characters excluding <(\/?dl|\/?nav)>
 			patterns: [/((<br( )?\/?>)|(<embed[^<>]*>)|(<input[^<>]*type="(submit|reset|button)"[^<>]*\/?>)|(class="clear(-fix)?")|(<d(t|d)[^<>]*>[^<>]*<a[^<>]*>((?!<\/a>)[\S\s])*<\/a>[^<>]*<\/d(t|d)>)|(<img[^<>]*src="data:[^<>]*"[^<>]*\/?>))/igm],
 
-				patternLabels: ['br', 'embed', 'input submit/reset/button', 'clear-fix', 'dl-navigations', 'data URI'],
-				min: null,
-				max: 0,
-				error: {
+			patternLabels: ['br', 'embed', 'input submit/reset/button', 'clear-fix', 'dl-navigations', 'data URI'],
+			min: null,
+			max: 0,
+			error: {
 				message: "Unexpected elements or attributes used like br, embed, input for submit/reset/button, clear-fix classes, img data uri's or dl for navigations.",
-					type: "warning"
+				type: "warning"
 			}
 		}
 	},
@@ -81,13 +81,13 @@ export const rules: {[name:string]: CheckRule} = {
 				/<object[^<>]*>/igm,
 				/<form[^<>]*>/igm
 			],
-				patternLabels: ['address', 'meta', 'link', 'iframe', 'track', 'definition list', 'unordered list', 'ordered list', 'main', 'nav', 'aside', 'article', 'header', 'footer', 'figure', 'figcaption', 'small', 'object', 'form'
+			patternLabels: ['address', 'meta', 'link', 'iframe', 'track', 'definition list', 'unordered list', 'ordered list', 'main', 'nav', 'aside', 'article', 'header', 'footer', 'figure', 'figcaption', 'small', 'object', 'form'
 			],
-				min: 1,
-				max: null,
+			min: 1,
+			max: null,
 				error: {
 				message: "Some of the following expected elements not found: address, meta, bookmark icon, iframe, video track, definition-, un- y ordered list, main, nav, aside, article, header, footer, figure, figcaption, small, object, form",
-					type: "error"
+				type: "error"
 			}
 		}
 	},
@@ -112,6 +112,21 @@ export const rules: {[name:string]: CheckRule} = {
 			error: {
 				message: "Some of the following expected form elements not found: output, range/search/radio/email/url input, select, textarea",
 				type: "error"
+			}
+		}
+	},
+	rolesUsage: {
+		name: "Usage of role attributes",
+		files: "*/*.html",
+		snippet: {
+			patterns: [
+				/<object[^<>]*role="img"[^<>]*>/igm,
+			],
+			min: 1,
+			max: null,
+			error: {
+				message: 'No role="img" found. SVG objects should be tagged by role.',
+				type: "warning"
 			}
 		}
 	}
