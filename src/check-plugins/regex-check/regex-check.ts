@@ -192,6 +192,8 @@ export class RegexCheck implements Check {
 	 * PERCENT checks if the percentage of the matching snippets is between the bounds
 	 * Example: min 0.2, max null: Minimal 40% of the snippet found by the snippet patterns match
 	 *          must match the snippet check patterns
+	 *
+	 * Tipp: use https://regex101.com/#javascript
 	 **/
 	constructor(options:{ [name: string]: any }) {
 		this.rules = options['RegexCheck']['rules'] || this.rules;
