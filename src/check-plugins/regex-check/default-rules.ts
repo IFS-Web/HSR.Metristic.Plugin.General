@@ -171,5 +171,20 @@ export const rules = {
 				type: "error"
 			}
 		}
+	},
+	svgObjectUsage: {
+		name: "SVG usage",
+		files: "*/*.html",
+		snippet: {
+			patterns: [
+				/<object[^<>]*(data="[^<>"]*\.svg"[^<>]*type="image\/svg\+xml"|type="image\/svg\+xml"[^<>]*data="[^<>"]*\.svg")[^<>]*>[^<>]*<\/object>/igm
+			],
+			min: 1,
+			max: 1,
+			error: {
+				message: 'Not enough or too many SVG objects found.',
+				type: "error"
+			}
+		}
 	}
 };
