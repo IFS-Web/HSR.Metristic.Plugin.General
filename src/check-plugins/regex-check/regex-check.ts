@@ -1,3 +1,5 @@
+/// <reference path="default-rules" />
+
 let Path = require('path');
 let FS = require('fs');
 let Glob = require("glob");
@@ -6,6 +8,7 @@ import {Barrier} from "../../domain/model/barrier";
 import {Check} from "../../domain/model/check";
 import {Report} from "../../domain/model/report";
 import {HtmlReport} from "../../domain/model/html-report";
+
 
 export interface CheckRule {
 	name: string,
