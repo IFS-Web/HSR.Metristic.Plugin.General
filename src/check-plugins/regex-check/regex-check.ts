@@ -34,10 +34,16 @@ export interface CheckMessage {
 	type?: string // "error", "info"
 }
 
+export interface Bounds {
+	min?: number,
+	max?: number
+}
+
 export interface CheckRuleResult {
 	rule:CheckRule,
 	occurrence:number,
 	error: CheckMessage,
+	bounds?: Bounds,
 	patternsFailed?: string[],
 	patternsSucceeded?: string[]
 }
@@ -209,7 +215,7 @@ export class RegexCheck implements Check {
 		});
 
 		this.rules.forEach((rule, ruleIndex) => {
-			if(!rule.name || !rule.files || !rule.snippet || !rule.snippet.patterns || !rule.snippet.error) {
+			if(!rule || !rule.name || !rule.files || !rule.snippet || !rule.snippet.patterns || !(rule.snippet.patterns.length > 0) || !rule.snippet.error) {
 				this.errors.push(new Error(`Incorrect rule ${rule.name} (rule ${ruleIndex}.`));
 				barrier.finishedTask(rule);
 			} else {
@@ -256,7 +262,7 @@ export class RegexCheck implements Check {
 
 		if(patternsOutOfBounds.some((isFailed) => isFailed)) {
 			let averageLength: number = matchList.reduce((previous, current) => previous+current.length,0)/matchList.length;
-			RegexCheck.addRuleResult(filePath, rule, averageLength, rule.snippet.error, results, patternsFailed, patternsSucceeded);
+			RegexCheck.addRuleResult(filePath, rule, averageLength, rule.snippet, rule.snippet.error, results, patternsFailed, patternsSucceeded);
 		} else {
 			if (rule.snippetCheck) {
 				let allMatches: string[] = matchList.reduce(
@@ -275,7 +281,7 @@ export class RegexCheck implements Check {
 					let snippetMatches: string[] = match.match(snippetCheck.pattern) || []; // match returns null if 0 found
 					let occurrence:number = snippetMatches.length;
 					if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
-						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.error, results);
+						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck, snippetCheck.error, results);
 					}
 				});
 				break;
@@ -285,7 +291,7 @@ export class RegexCheck implements Check {
 				).length;
 				let occurrence:number = numberOfMatchingSnippetRules / matches.length;
 				if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
-					RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck.error, results);
+					RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck, snippetCheck.error, results);
 				}
 				break;
 			default:
@@ -297,7 +303,7 @@ export class RegexCheck implements Check {
 		return !(typeof(count) !== 'undefined' && typeof(bounds) !== 'undefined' && (bounds.min == null || count >= bounds.min) && (bounds.max == null || count <= bounds.max));
 	};
 
-	private static addRuleResult(filePath, rule, occurrence, errorMessage, results, patternsFailed?, patternsSucceeded?) {
+	private static addRuleResult(filePath: string, rule: CheckRule, occurrence: number, bounds: Bounds, errorMessage: CheckMessage, results, patternsFailed?: string[], patternsSucceeded?: string[]) {
 		if (!results[ filePath ]) {
 			results[ filePath ] = [];
 		}
@@ -306,6 +312,9 @@ export class RegexCheck implements Check {
 			occurrence: occurrence,
 			error: errorMessage
 		};
+		if(bounds) {
+			result['bounds'] = bounds;
+		}
 		if(patternsFailed && patternsSucceeded) {
 			result['patternsFailed'] = patternsFailed;
 			result['patternsSucceeded'] = patternsSucceeded;

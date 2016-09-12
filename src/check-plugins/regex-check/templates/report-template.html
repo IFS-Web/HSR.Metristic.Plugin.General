@@ -8,13 +8,18 @@
 			{{/if}}
 			<strong>{{rule.name}}</strong>: {{{error.message}}}
 			<ul class="list-unstyled">
-				<li>&nbsp;➜
-					{{#compare rule.snippet.patterns.length '<=' 1}}
+				{{#if error.hideOccurrencesInReport}}
+				{{else}}
+					<li>&nbsp;➜
+						{{#compare rule.snippet.patterns.length '<=' 1}}
 						<strong>Found</strong> {{occurrence}},
-					{{/compare}}
-					<strong>Expected</strong>
-					{{#compare rule.snippet.min '!=' null}}{{rule.snippet.min}} &lt; {{/compare}}X{{#compare rule.snippet.max '!=' null}} &lt; {{rule.snippet.max}}{{/compare}}
-				</li>
+						{{/compare}}
+						<strong>Expected</strong>
+						{{#if bounds}}
+						{{#compare bounds.min '!=' null}}{{bounds.min}} &lt; {{/compare}}X{{#compare bounds.max '!=' null}} &lt; {{bounds.max}}{{/compare}}
+						{{/if}}
+					</li>
+				{{/if}}
 				{{#if patternsFailed}}
 					<li>&nbsp;➜
 						<strong>Failed items</strong>:
