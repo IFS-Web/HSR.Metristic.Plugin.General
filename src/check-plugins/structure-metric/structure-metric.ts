@@ -1,11 +1,26 @@
 "use strict";
-var Path = require('path');
-var FS = require('fs');
+let Path = require('path');
+let FS = require('fs');
+let ChildProcess = require('child_process');
 
 import {Check} from "./../../domain/model/check";
 import {Report} from "./../../domain/model/report";
 import {HtmlReport} from "./../../domain/model/html-report";
 import {Barrier} from "../../domain/model/barrier";
+
+
+interface FileInfo {
+	name: string,
+	size: number,
+	changed: Date,
+	numberOfLines: number
+}
+
+interface DirectoryInfo {
+	name: string,
+	files: FileInfo[],
+	directories: DirectoryInfo[]
+}
 
 
 export class StructureMetric implements Check {
@@ -48,7 +63,8 @@ export class StructureMetric implements Check {
 				awaiter.expand(files.length);
 				files.forEach((file) => {
 					let subPath = Path.join(path, file);
-					if (FS.lstatSync(subPath).isDirectory()) {
+					let fileStats = FS.statSync(subPath);
+					if (fileStats.isDirectory()) {
 						// TODO: use async, handle error
 						counts.numberOfDirectories++;
 						let subDirectory = {};
@@ -56,12 +72,31 @@ export class StructureMetric implements Check {
 						StructureMetric.walkStructure(awaiter, subPath, subDirectory, counts, errors);
 					} else {
 						counts.numberOfFiles++;
-						structure[ 'files' ].push(Path.basename(file));
-						awaiter.finishedTask(subPath);
+						StructureMetric.getFileInfo(subPath, fileStats, errors, (fileInfo: FileInfo) => {
+							structure[ 'files' ].push(fileInfo);
+							awaiter.finishedTask(subPath);
+						});
 					}
 				});
 			}
 			awaiter.finishedTask(path);
+		});
+	}
+
+	protected static getFileInfo(filePath: string, fileStats: any, errors: Error[], callback: (fileInfo: FileInfo) => void): void {
+		let fileInfo:FileInfo = {
+			name: Path.basename(filePath),
+			size: fileStats[ 'size' ] / 1024, // KiB
+			changed: new Date(fileStats[ 'mtime' ]),
+			numberOfLines: null
+		};
+		ChildProcess.exec(`wc -l < ${filePath}`, function (error, numberOfLines) {
+			if(error) {
+				errors.push(error);
+			} else {
+				fileInfo.numberOfLines = Number(numberOfLines);
+			}
+			callback(fileInfo);
 		});
 	}
 }
