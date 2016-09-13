@@ -1,6 +1,7 @@
 "use strict";
-var Path = require('path');
-var FS = require('fs');
+let Path = require('path');
+let FS = require('fs');
+let ChildProcess = require('child_process');
 
 import {Check} from "./../../domain/model/check";
 import {Report} from "./../../domain/model/report";
@@ -11,7 +12,8 @@ import {Barrier} from "../../domain/model/barrier";
 interface FileInfo {
 	name: string,
 	size: number,
-	changed: Date
+	changed: Date,
+	numberOfLines: number
 }
 
 interface DirectoryInfo {
@@ -70,17 +72,31 @@ export class StructureMetric implements Check {
 						StructureMetric.walkStructure(awaiter, subPath, subDirectory, counts, errors);
 					} else {
 						counts.numberOfFiles++;
-						let fileInfo: FileInfo = {
-							name: Path.basename(file),
-							size: fileStats['size'] / 1024, // KiB
-							changed: new Date(fileStats['mtime'])
-						};
-						structure[ 'files' ].push(fileInfo);
-						awaiter.finishedTask(subPath);
+						StructureMetric.getFileInfo(subPath, fileStats, errors, (fileInfo: FileInfo) => {
+							structure[ 'files' ].push(fileInfo);
+							awaiter.finishedTask(subPath);
+						});
 					}
 				});
 			}
 			awaiter.finishedTask(path);
+		});
+	}
+
+	protected static getFileInfo(filePath: string, fileStats: any, errors: Error[], callback: (fileInfo: FileInfo) => void): void {
+		let fileInfo:FileInfo = {
+			name: Path.basename(filePath),
+			size: fileStats[ 'size' ] / 1024, // KiB
+			changed: new Date(fileStats[ 'mtime' ]),
+			numberOfLines: null
+		};
+		ChildProcess.exec(`wc -l < ${filePath}`, function (error, numberOfLines) {
+			if(error) {
+				errors.push(error);
+			} else {
+				fileInfo.numberOfLines = Number(numberOfLines);
+			}
+			callback(fileInfo);
 		});
 	}
 }

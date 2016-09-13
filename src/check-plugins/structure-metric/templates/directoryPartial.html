@@ -12,8 +12,17 @@
 	<li>
 		<img src="/assets/images/icon-file.svg" class="icon file" />
 		{{name}}
-		<i class="file-info">{{round size 2}} KiB</i>
-		<i class="file-info">◴ {{moment changed "YY/MM/D hh:mm"}}</i>
+		<span class="file-info" title="File size: {{round size 3}} KiB">
+			<span class="icon">⚖</span> {{round size 2}} KiB
+		</span>
+		{{#if numberOfLines}}
+			<span class="file-info" title="{{numberOfLines}} lines">
+				<span class="icon">☰</span> {{numberOfLines}}
+			</span>
+		{{/if}}
+		<span class="file-info" title="Last changed {{moment changed "YY/MM/D hh:mm"}}">
+			<span class="icon">◴</span> {{moment changed "YY/MM/D hh:mm"}}
+		</span>
 	</li>
 	{{/each}}
 </ul>
