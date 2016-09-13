@@ -11,7 +11,9 @@
 	{{#each structure.files}}
 	<li>
 		<img src="/assets/images/icon-file.svg" class="icon file" />
-		{{this}}
+		{{name}}
+		<i class="file-info">{{round size 2}} KiB</i>
+		<i class="file-info">◴ {{moment changed "YY/MM/D hh:mm"}}</i>
 	</li>
 	{{/each}}
 </ul>

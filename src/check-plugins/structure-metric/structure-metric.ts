@@ -8,6 +8,19 @@ import {HtmlReport} from "./../../domain/model/html-report";
 import {Barrier} from "../../domain/model/barrier";
 
 
+interface FileInfo {
+	name: string,
+	size: number,
+	changed: Date
+}
+
+interface DirectoryInfo {
+	name: string,
+	files: FileInfo[],
+	directories: DirectoryInfo[]
+}
+
+
 export class StructureMetric implements Check {
 	private reportTemplate: string;
 	private partials: {[name:string]:string};
@@ -48,7 +61,8 @@ export class StructureMetric implements Check {
 				awaiter.expand(files.length);
 				files.forEach((file) => {
 					let subPath = Path.join(path, file);
-					if (FS.lstatSync(subPath).isDirectory()) {
+					let fileStats = FS.statSync(subPath);
+					if (fileStats.isDirectory()) {
 						// TODO: use async, handle error
 						counts.numberOfDirectories++;
 						let subDirectory = {};
@@ -56,7 +70,12 @@ export class StructureMetric implements Check {
 						StructureMetric.walkStructure(awaiter, subPath, subDirectory, counts, errors);
 					} else {
 						counts.numberOfFiles++;
-						structure[ 'files' ].push(Path.basename(file));
+						let fileInfo: FileInfo = {
+							name: Path.basename(file),
+							size: fileStats['size'] / 1024, // KiB
+							changed: new Date(fileStats['mtime'])
+						};
+						structure[ 'files' ].push(fileInfo);
 						awaiter.finishedTask(subPath);
 					}
 				});
