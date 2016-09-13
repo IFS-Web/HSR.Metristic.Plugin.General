@@ -219,15 +219,15 @@ export const rules = {
 			}
 		},
 		stateEffectUsage: {
-			name: "Usage of hover, active or focus",
+			name: "Usage of pseudostates",
 			files: "*/styles/*.css",
 			snippet: {
-				patterns: [ /:hover/igm, /:active/igm, /:focus/igm ],
-				patternLabels: [ 'hover', 'active', 'focus'],
+				patterns: [ /:hover/igm, /:active/igm, /:focus/igm, /:before/igm ],
+				patternLabels: [ 'hover', 'active', 'focus', 'before'],
 				min: 2,
 				max: null,
 				error: {
-					message: "Too less state depending styling found. Add hover, active and focus styles for links and buttons.",
+					message: "Too less state depending styling found. Add hover, active, focus styles for links and buttons and use :before",
 					type: "error",
 					hideOccurrencesInReport: true
 				}
