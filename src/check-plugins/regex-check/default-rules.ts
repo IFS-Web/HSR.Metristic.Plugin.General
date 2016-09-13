@@ -232,6 +232,34 @@ export const rules = {
 					hideOccurrencesInReport: true
 				}
 			}
+		},
+		/**
+		 * match
+		 *	{
+		 * 		counter-reset: someHeadingName;
+		 *	}
+		 * and
+		 * 	h3:before {
+		 *		counter-increment: someHeadingName;
+		 *		content: counter(someHeadingName);
+		 *	}
+		 */
+		headingNumbers: {
+			name: "Usage of automatic numbers for headings",
+			files: "*/styles/*.css",
+			snippet: {
+				patterns: [
+					/h\d:before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*content:\s?counter\(\w*\);[^\{\}]*\}/igm,
+					/\{[^\{\}]*counter-reset:\s?\w*;[^\{\}]*\}/igm
+				],
+				min: 1,
+				max: null,
+				error: {
+					message: "No heading numbering found.",
+					type: "error",
+					hideOccurrencesInReport: true
+				}
+			}
 		}
 	}
 };
