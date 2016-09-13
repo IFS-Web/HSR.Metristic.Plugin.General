@@ -248,8 +248,9 @@ export class RegexCheck implements Check {
 	static checkRule(fileData, rule, filePath, results, errors) {
 		let patternsFailed: string[] = [];
 		let patternsSucceeded: string[] = [];
+		let fileContent = fileData.toString();
 		let matchList: string[][] = rule.snippet.patterns.map(
-			(pattern) => fileData.toString().match(pattern) || [] // match returns null if 0 found;
+			(pattern) => RegexCheck.match(pattern, fileContent)
 		);
 		let patternsOutOfBounds: boolean[] = matchList.map((matches) => RegexCheck.countOutOfBounds(matches.length, rule.snippet));
 		if(rule.snippet.patternLabels) {
@@ -280,7 +281,7 @@ export class RegexCheck implements Check {
 		switch (snippetCheck.valueFormat) {
 			case("NUMBER"):
 				matches.forEach((match) => {
-					let snippetMatches: string[] = match.match(snippetCheck.pattern) || []; // match returns null if 0 found
+					let snippetMatches: string[] = RegexCheck.match(snippetCheck.pattern, match);
 					let occurrence:number = snippetMatches.length;
 					if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
 						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck, snippetCheck.error, results);
@@ -289,7 +290,7 @@ export class RegexCheck implements Check {
 				break;
 			case("PERCENT"):
 				let numberOfMatchingSnippetRules:number = matches.filter(
-					(matchResult) => Boolean(matchResult.match(snippetCheck.pattern))
+					(matchResult) => RegexCheck.match(snippetCheck.pattern, matchResult).length > 0
 				).length;
 				let occurrence:number = numberOfMatchingSnippetRules / matches.length;
 				if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
@@ -323,4 +324,13 @@ export class RegexCheck implements Check {
 		}
 		results[ filePath ].push(result);
 	};
+
+	public static match(pattern: RegExp, text: string): string[] {
+		var matches = [];
+		var match;
+		while (match = pattern.exec(text)) {
+			matches.push(match[0]);
+		}
+		return matches;
+	}
 }
