@@ -244,7 +244,7 @@ export const rules = {
 		 *		content: counter(someHeadingName);
 		 *	}
 		 */
-		headingNumbers: {
+		headingNumbersUsage: {
 			name: "Usage of automatic numbers for headings",
 			files: "*/styles/*.css",
 			snippet: {
@@ -258,6 +258,41 @@ export const rules = {
 					message: "No heading numbering found.",
 					type: "error",
 					hideOccurrencesInReport: true
+				}
+			}
+		},
+		/**
+		 * count % of 'abz > def' of al selectors containing multiple parts
+		 *
+		 * .foo[data-val|="blubb] > span.go4it-def , ... { ... }
+		 * `---------v----------´   `------v-----´
+		 *      [^,{}\s\/]            [^,{}\s\/]
+		 *                      `-v-´              `-----v------´
+		 *               (\s|\s(>|~|\+)\s)    ((?=,[^}]*{)|\s*(?={))
+		 */
+		efficientSelectorsUsage: {
+			name: "Usage of efficient selectors",
+			files: "*/styles/*.css",
+			snippet: {
+				patterns: [
+					/([^,{}\s\/]+((\s|\s(>|~|\+)\s)[^,{}\s\/]+)+)((?=,[^}]*{)|\s*(?={))/igm
+				],
+				min: null,
+				max: null,
+				error: {
+					message: "---",
+					type: "info",
+				}
+			},
+			snippetCheck: {
+				pattern: /[^,{}\s\/]+\s(>|~|\+)\s[^,{}\s\/]+/igm,
+				min: 0.6,
+				max: null,
+				valueFormat: "PERCENT",
+				error: {
+					message: "Too many inefficient selectors found",
+					type: "warning",
+					//hideOccurrencesInReport: true
 				}
 			}
 		}
