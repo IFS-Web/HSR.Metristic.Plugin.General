@@ -272,7 +272,7 @@ export const rules = {
 		 */
 		efficientSelectorsUsage: {
 			name: "Usage of efficient selectors",
-			files: "*/styles/*.css",
+			files: "**/*.css",
 			snippet: {
 				patterns: [
 					/([^,{}\s\/]+((\s|\s(>|~|\+)\s)[^,{}\s\/]+)+)((?=,[^}]*{)|\s*(?={))/igm
@@ -310,6 +310,20 @@ export const rules = {
 				error: {
 					message: "Too many absolute units used. Please use more relative units like 'em', 'rem', '%', 'vw' or 'vh'.",
 					type: "warning",
+				}
+			}
+		},
+		nthChildUsage: {
+			name: "Alternate row colors",
+			files: "*/styles/*.css",
+			snippet: {
+				patterns: [/tr:nth\-child\((2n|even|odd)\)/igm ],
+				min: 1,
+				max: null,
+				error: {
+					message: "Nth-child not or wrong used.",
+					type: "error",
+					hideOccurrencesInReport: true
 				}
 			}
 		}
