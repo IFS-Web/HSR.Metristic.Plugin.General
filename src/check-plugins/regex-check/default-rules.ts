@@ -322,7 +322,36 @@ export const rules = {
 				max: null,
 				error: {
 					message: "Nth-child not or wrong used.",
-					type: "error",
+					type: "warning",
+					hideOccurrencesInReport: true
+				}
+			}
+		},
+		calcUsage: {
+			name: "Usage of calc()",
+			files: "*/styles/*.css",
+			snippet: {
+				patterns: [/calc\([^;]*\);/igm],
+				min: 2,
+				max: null,
+				error: {
+					message: "Too less calc() found.",
+					type: "error"
+				}
+			},
+			// calc should be used like this: calc( 56.25%-of-the-page-with - the-margins ), examples:
+			// calc( 100vw*0.5625 - 1rem )
+			// calc( 56.25vw - 2*0.5rem )
+			// calc( 0.5625*100vw - 0.5rem - 0.5rem )
+			// calc((100vw * 9/16) - 120px)
+			snippetCheck: {
+				pattern: /calc\((\s?\(?\d+(\.\d+)?\s?\*)?\s?\d+(\.\d+)?(vw|%)(\s?\*\s?\d+(\.\d+)?\s?)?\)?(\s?\-(\s?\d+(\.\d+)?\s?\*)?\s?\d+(\.\d+)?(em|rem|px)\s?)+\)/igm,
+				min: 1,
+				max: 1,
+				valueFormat: "NUMBER",
+				error: {
+					message: "Calc not used the proposed way.",
+					type: "warning",
 					hideOccurrencesInReport: true
 				}
 			}
