@@ -279,10 +279,7 @@ export const rules = {
 				],
 				min: null,
 				max: null,
-				error: {
-					message: "---",
-					type: "info",
-				}
+				error: { message: "---", type: "info", }
 			},
 			snippetCheck: {
 				pattern: /[^,{}\s\/]+\s(>|~|\+)\s[^,{}\s\/]+/igm,
@@ -292,7 +289,27 @@ export const rules = {
 				error: {
 					message: "Too many inefficient selectors found",
 					type: "warning",
-					//hideOccurrencesInReport: true
+					hideOccurrencesInReport: true
+				}
+			}
+		},
+		unitsUsage: {
+			name: "Usage of relative and absolute units",
+			files: "**/*.css",
+			snippet: {
+				patterns: [/\d+(em|ex|ch|rem|vw|vh|vmin|vmax|%|cm|mm|in|px|pt|pc)/igm],
+				min: null,
+				max: null,
+				error: { message: "---", type: "info", }
+			},
+			snippetCheck: {
+				pattern: /\d+(em|ex|ch|rem|vw|vh|vmin|vmax|%)/igm,
+				min: 0.75,
+				max: null,
+				valueFormat: "PERCENT",
+				error: {
+					message: "Too many absolute units used. Please use more relative units like 'em', 'rem', '%', 'vw' or 'vh'.",
+					type: "warning",
 				}
 			}
 		}
