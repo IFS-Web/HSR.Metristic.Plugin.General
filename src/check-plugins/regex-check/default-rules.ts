@@ -356,5 +356,20 @@ export const rules = {
 				}
 			}
 		}
+	},
+	JS: {
+		codeEvaluationUsage: {
+			name: "Usage of dangerous code evaluation",
+			files: "**/*js",
+			snippet: {
+				patterns: [/eval\(/igm, /new\sfunction\(/igm, /setTimeout\(/igm],
+				min: null,
+				max: 0,
+				error: {
+					message: "eval(), new function() or setTimeout() used.",
+					type: "error"
+				}
+			}
+		}
 	}
 };
