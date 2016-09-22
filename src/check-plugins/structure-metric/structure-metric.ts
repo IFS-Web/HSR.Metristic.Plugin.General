@@ -41,7 +41,8 @@ export class StructureMetric implements Check {
 			structure: {},
 			counts: {
 				numberOfDirectories: 0,
-				numberOfFiles: 0
+				numberOfFiles: 0,
+				numberOfLines: 0
 			}
 		};
 		let awaiter: Barrier = new Barrier(1).then(() => {
@@ -73,6 +74,7 @@ export class StructureMetric implements Check {
 					} else {
 						counts.numberOfFiles++;
 						StructureMetric.getFileInfo(subPath, fileStats, errors, (fileInfo: FileInfo) => {
+							counts.numberOfLines += (fileInfo.numberOfLines || 0);
 							structure[ 'files' ].push(fileInfo);
 							awaiter.finishedTask(subPath);
 						});
