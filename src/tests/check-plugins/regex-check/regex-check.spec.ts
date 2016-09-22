@@ -1,6 +1,6 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
 "use strict";
-import {RegexCheck, CheckRule, CheckRuleResult} from "../../../check-plugins/regex-check/regex-check";
+import {RegexCheck, CheckRule} from "../../../check-plugins/regex-check/regex-check";
 
 
 describe("Regex check", () => {

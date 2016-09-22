@@ -1,4 +1,5 @@
 /// <reference path="default-rules" />
+/* tslint:disable:max-line-length */
 
 let Path = require('path');
 let FS = require('fs');

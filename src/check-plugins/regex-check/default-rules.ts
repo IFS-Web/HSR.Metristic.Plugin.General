@@ -1,4 +1,4 @@
-import {CheckRule} from "./regex-check";
+/* tslint:disable:max-line-length */
 
 
 export const rules = {
