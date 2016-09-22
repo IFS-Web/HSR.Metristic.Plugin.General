@@ -3,9 +3,12 @@
 	<div class="col-xs-12 col-md-6">
 		{{> directoryPartial structure=structure}}
 	</div>
-	<ul class="col-xs-12 col-md-6">
-		<li>{{counts.numberOfDirectories}} directories</li>
-		<li>{{counts.numberOfFiles}} files</li>
-		<li>{{counts.numberOfLines}} lines</li>
-	</ul>
+	<div class="col-xs-12 col-md-6">
+		<h4>Metrics</h4>
+		<ul>
+			<li>{{counts.numberOfDirectories}} directories</li>
+			<li>{{counts.numberOfFiles}} files</li>
+			<li>{{counts.numberOfLines}} lines</li>
+		</ul>
+	</div>
 </div>
