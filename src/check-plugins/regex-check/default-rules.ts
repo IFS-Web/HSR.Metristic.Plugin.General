@@ -1,9 +1,34 @@
 import {CheckRule} from "./regex-check";
 
 
-// export const rules: { [name: string]: CheckRule } = {
 export const rules = {
 	HTML: {
+		bookmarkIconUsage: {
+			name: "Bookmark icon",
+			files: "*.html",
+			snippet: {
+				patterns: [/<link[^<>]*rel="icon"[^<>]*\/?>/igm],
+				min: 1,
+				max: 1,
+				error: {
+					message: 'No bookmark icon found.',
+					type: "warning"
+				}
+			}
+		},
+		styleSheetUsage: {
+			name: "Stylesheets",
+			files: "*.html",
+			snippet: {
+				patterns: [/<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm],
+				min: 1,
+				max: null,
+				error: {
+					message: 'No stylesheet found',
+					type: "info"
+				}
+			}
+		},
 		hreflangAttribute: {
 			name: "Hreflang attribute for external links",
 			files: "*/*.html",

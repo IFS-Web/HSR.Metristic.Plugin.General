@@ -8,6 +8,7 @@ import {Barrier} from "../../domain/model/barrier";
 import {Check} from "../../domain/model/check";
 import {Report} from "../../domain/model/report";
 import {HtmlReport} from "../../domain/model/html-report";
+import {rules} from "./default-rules";
 
 
 export interface CheckRule {
@@ -53,55 +54,11 @@ export class RegexCheck implements Check {
 	private reportTemplate:string;
 	private errors:Error[] = [];
 	private rules: CheckRule[] = [
-		{
-			name: "Time element usage",
-			files: "*.html",
-			snippet: {
-				patterns: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
-				min: 0, // min: null means bound will not be checked
-				max: 30, // max: null means bound will not be checked
-				error: {
-					message: "Not enough or to less time elements found. Please use <time> for every time occurence.",
-					type: "warning"
-				}
-			},
-			snippetCheck: {
-				pattern: /<time [^<>\/]*datetime="((\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?))"[^<>\/]*>[^<>\/]*<\/time>/igm,
-				min: 1,
-				max: 1,
-				valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
-				error: {
-					message: "Time element not used correct. Don't forget datetime attribute and value (http://www.w3schools.com/tags/att_time_datetime.asp).",
-					type: "error"
-				}
-			}
-		},
-		{
-			name: "Bookmark icon",
-			files: "*.html",
-			snippet: {
-				patterns: [/<link[^<>]*rel="icon"[^<>]*\/?>/igm],
-				min: 1,
-				max: 1,
-				error: {
-					message: 'No bookmark icon found.',
-					type: "warning"
-				}
-			}
-		},
-		{
-			name: "Stylesheets",
-			files: "*.html",
-			snippet: {
-				patterns: [/<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm],
-				min: 1,
-				max: null,
-				error: {
-					message: 'No stylesheet found',
-					type: "info"
-				}
-			}
-		}
+		rules.HTML.bookmarkIconUsage,
+		rules.HTML.unexpectedElementsUsage,
+		rules.CSS.efficientSelectorsUsage,
+		rules.CSS.unitsUsage,
+		rules.JS.codeEvaluationUsage
 	];
 	private results: { [name:string]:CheckRuleResult[] } = {};
 
@@ -194,6 +151,8 @@ export class RegexCheck implements Check {
 	 *          must match the snippet check patterns
 	 *
 	 * Tipp: use https://regex101.com/#javascript
+	 *
+	 * More example rules see default-rules.ts
 	 **/
 	constructor(options:{ [name: string]: any }) {
 		this.rules = options['RegexCheck']['rules'] || this.rules;
