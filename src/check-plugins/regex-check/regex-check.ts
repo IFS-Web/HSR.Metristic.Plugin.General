@@ -8,6 +8,7 @@ import {Barrier} from "../../domain/model/barrier";
 import {Check} from "../../domain/model/check";
 import {Report} from "../../domain/model/report";
 import {HtmlReport} from "../../domain/model/html-report";
+import {rules} from "./default-rules";
 
 
 export interface CheckRule {
@@ -53,55 +54,11 @@ export class RegexCheck implements Check {
 	private reportTemplate:string;
 	private errors:Error[] = [];
 	private rules: CheckRule[] = [
-		{
-			name: "Time element usage",
-			files: "*.html",
-			snippet: {
-				patterns: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
-				min: 0, // min: null means bound will not be checked
-				max: 30, // max: null means bound will not be checked
-				error: {
-					message: "Not enough or to less time elements found. Please use <time> for every time occurence.",
-					type: "warning"
-				}
-			},
-			snippetCheck: {
-				pattern: /<time [^<>\/]*datetime="((\d{4}(-\d{2}){0,2})|(-\d{2}){0,2}|(\d{4}-W\d{2})|(\d{4}(-\d{2}){2}(T| )\d{2}:\d{2}(:\d{2}(.\d{3})?)?)|(\d{2}:\d{2}((\+|\-)\d{2}:\d{2})?))"[^<>\/]*>[^<>\/]*<\/time>/igm,
-				min: 1,
-				max: 1,
-				valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
-				error: {
-					message: "Time element not used correct. Don't forget datetime attribute and value (http://www.w3schools.com/tags/att_time_datetime.asp).",
-					type: "error"
-				}
-			}
-		},
-		{
-			name: "Bookmark icon",
-			files: "*.html",
-			snippet: {
-				patterns: [/<link[^<>]*rel="icon"[^<>]*\/?>/igm],
-				min: 1,
-				max: 1,
-				error: {
-					message: 'No bookmark icon found.',
-					type: "warning"
-				}
-			}
-		},
-		{
-			name: "Stylesheets",
-			files: "*.html",
-			snippet: {
-				patterns: [/<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm],
-				min: 1,
-				max: null,
-				error: {
-					message: 'No stylesheet found',
-					type: "info"
-				}
-			}
-		}
+		rules.HTML.bookmarkIconUsage,
+		rules.HTML.unexpectedElementsUsage,
+		rules.CSS.efficientSelectorsUsage,
+		rules.CSS.unitsUsage,
+		rules.JS.codeEvaluationUsage
 	];
 	private results: { [name:string]:CheckRuleResult[] } = {};
 
@@ -194,6 +151,8 @@ export class RegexCheck implements Check {
 	 *          must match the snippet check patterns
 	 *
 	 * Tipp: use https://regex101.com/#javascript
+	 *
+	 * More example rules see default-rules.ts
 	 **/
 	constructor(options:{ [name: string]: any }) {
 		this.rules = options['RegexCheck']['rules'] || this.rules;
@@ -248,8 +207,9 @@ export class RegexCheck implements Check {
 	static checkRule(fileData, rule, filePath, results, errors) {
 		let patternsFailed: string[] = [];
 		let patternsSucceeded: string[] = [];
+		let fileContent = fileData.toString();
 		let matchList: string[][] = rule.snippet.patterns.map(
-			(pattern) => fileData.toString().match(pattern) || [] // match returns null if 0 found;
+			(pattern) => RegexCheck.match(pattern, fileContent)
 		);
 		let patternsOutOfBounds: boolean[] = matchList.map((matches) => RegexCheck.countOutOfBounds(matches.length, rule.snippet));
 		if(rule.snippet.patternLabels) {
@@ -280,7 +240,7 @@ export class RegexCheck implements Check {
 		switch (snippetCheck.valueFormat) {
 			case("NUMBER"):
 				matches.forEach((match) => {
-					let snippetMatches: string[] = match.match(snippetCheck.pattern) || []; // match returns null if 0 found
+					let snippetMatches: string[] = RegexCheck.match(snippetCheck.pattern, match);
 					let occurrence:number = snippetMatches.length;
 					if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
 						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck, snippetCheck.error, results);
@@ -289,7 +249,7 @@ export class RegexCheck implements Check {
 				break;
 			case("PERCENT"):
 				let numberOfMatchingSnippetRules:number = matches.filter(
-					(matchResult) => Boolean(matchResult.match(snippetCheck.pattern))
+					(matchResult) => RegexCheck.match(snippetCheck.pattern, matchResult).length > 0
 				).length;
 				let occurrence:number = numberOfMatchingSnippetRules / matches.length;
 				if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
@@ -323,4 +283,13 @@ export class RegexCheck implements Check {
 		}
 		results[ filePath ].push(result);
 	};
+
+	public static match(pattern: RegExp, text: string): string[] {
+		var matches = [];
+		var match;
+		while (match = pattern.exec(text)) {
+			matches.push(match[0]);
+		}
+		return matches;
+	}
 }
