@@ -1,3 +1,5 @@
+/* tslint:disable:max-file-line-count */
+
 /// <reference path="../../../../typings/tsd.d.ts" />
 "use strict";
 import {RegexCheck, CheckRule} from "../../../check-plugins/regex-check/regex-check";
@@ -225,7 +227,7 @@ describe("Regex check", () => {
 				`p { color: red; }`,
 				`#bx { size: big; }`,
 				`.fg { background: real; }`,
-				`div, span { display: block; }`,
+				`div, span { display: block; }`
 			];
 
 			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);

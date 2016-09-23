@@ -163,7 +163,7 @@ export class RegexCheck implements Check {
 
 	public execute(directory: string, callback: (report: Report, errors?: Error[]) => {}): void {
 		let barrier: Barrier = new Barrier(this.rules.length).then(() => {
-			if(Object.keys(this.results).length > 0) {
+			if (Object.keys(this.results).length > 0) {
 				let report:Report = new HtmlReport(
 					'Custom checks',
 					this.reportTemplate,
@@ -177,7 +177,7 @@ export class RegexCheck implements Check {
 		});
 
 		this.rules.forEach((rule, ruleIndex) => {
-			if(!rule || !rule.name || !rule.files || !rule.snippet || !rule.snippet.patterns || !(rule.snippet.patterns.length > 0) || !rule.snippet.error) {
+			if (!rule || !rule.name || !rule.files || !rule.snippet || !rule.snippet.patterns || !(rule.snippet.patterns.length > 0) || !rule.snippet.error) {
 				this.errors.push(new Error(`Incorrect rule "${rule.name}" (Rule ${ruleIndex}).`));
 				barrier.finishedTask(rule);
 			} else {
@@ -213,7 +213,7 @@ export class RegexCheck implements Check {
 			(pattern) => RegexCheck.match(pattern, fileContent)
 		);
 		let patternsOutOfBounds: boolean[] = matchList.map((matches) => RegexCheck.countOutOfBounds(matches.length, rule.snippet));
-		if(rule.snippet.patternLabels) {
+		if (rule.snippet.patternLabels) {
 			patternsOutOfBounds.forEach((isFailed, index) => {
 				if (isFailed) {
 					patternsFailed.push(rule.snippet.patternLabels[ index ] || null);
@@ -223,8 +223,8 @@ export class RegexCheck implements Check {
 			});
 		}
 
-		if(patternsOutOfBounds.some((isFailed) => isFailed)) {
-			let averageLength: number = matchList.reduce((previous, current) => previous+current.length,0)/matchList.length;
+		if (patternsOutOfBounds.some((isFailed) => isFailed)) {
+			let averageLength: number = matchList.reduce((previous, current) => previous + current.length, 0) / matchList.length;
 			RegexCheck.addRuleResult(filePath, rule, averageLength, rule.snippet, rule.snippet.error, results, patternsFailed, patternsSucceeded);
 		} else {
 			if (rule.snippetCheck) {
@@ -258,7 +258,7 @@ export class RegexCheck implements Check {
 				}
 				break;
 			default:
-				errors.push(new Error(`Rule "${rule.name} specifies invalid snippet check format (${snippetCheck.valueFormat}).`))
+				errors.push(new Error(`Rule "${rule.name} specifies invalid snippet check format (${snippetCheck.valueFormat}).`));
 		}
 	};
 
@@ -275,10 +275,10 @@ export class RegexCheck implements Check {
 			occurrence: occurrence,
 			error: errorMessage
 		};
-		if(bounds) {
+		if (bounds) {
 			result['bounds'] = bounds;
 		}
-		if(patternsFailed && patternsSucceeded) {
+		if (patternsFailed && patternsSucceeded) {
 			result['patternsFailed'] = patternsFailed;
 			result['patternsSucceeded'] = patternsSucceeded;
 		}

@@ -29,10 +29,10 @@ export class StructureMetric implements Check {
 	private errors: Error[] = [];
 
 	constructor(private options: { [name: string]: any }) {
-		this.reportTemplate = FS.readFileSync(Path.join(__dirname,'./templates/reportTemplate.html'), "utf8");
+		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/reportTemplate.html'), "utf8");
 		this.partials = {
-			directoryPartial: FS.readFileSync(Path.join(__dirname,'./templates/directoryPartial.html'), "utf8")
-		}
+			directoryPartial: FS.readFileSync(Path.join(__dirname, './templates/directoryPartial.html'), "utf8")
+		};
 	}
 
 
@@ -58,7 +58,7 @@ export class StructureMetric implements Check {
 		structure['files'] = [];
 
 		FS.readdir(path, (error: Error, files: string[]) => {
-			if(error) {
+			if (error) {
 				errors.push(error);
 			} else {
 				awaiter.expand(files.length);
@@ -93,7 +93,7 @@ export class StructureMetric implements Check {
 			numberOfLines: null
 		};
 		ChildProcess.exec(`wc -l < ${filePath}`, function (error, numberOfLines) {
-			if(error) {
+			if (error) {
 				errors.push(error);
 			} else {
 				fileInfo.numberOfLines = Number(numberOfLines);

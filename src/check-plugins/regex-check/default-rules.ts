@@ -1,4 +1,5 @@
 /* tslint:disable:max-line-length */
+/* tslint:disable:max-file-line-count */
 
 
 export const rules = {
@@ -147,7 +148,7 @@ export const rules = {
 			files: "*/*.html",
 			snippet: {
 				patterns: [
-					/<object[^<>]*role="img"[^<>]*>/igm,
+					/<object[^<>]*role="img"[^<>]*>/igm
 				],
 				min: 1,
 				max: null,
@@ -188,7 +189,7 @@ export const rules = {
 			files: "*/*.html",
 			snippet: {
 				patterns: [
-					/<article[^<>]*>((?!<\/article>)[\S\s])*<header[^<>]*>((?!<\/article>)[\S\s])*<h\d>((?!<\/article>)[\S\s])*<\/h\d>((?!<\/article>)[\S\s])*<\/header>((?!<\/article>)[\S\s])*<footer[^<>]*>((?!<\/article>)[\S\s])*<small[^<>]*>((?!<\/article>)[\S\s])*<\/small>((?!<\/article>)[\S\s])*<\/footer>((?!<\/article>)[\S\s])*<\/article>/igm,
+					/<article[^<>]*>((?!<\/article>)[\S\s])*<header[^<>]*>((?!<\/article>)[\S\s])*<h\d>((?!<\/article>)[\S\s])*<\/h\d>((?!<\/article>)[\S\s])*<\/header>((?!<\/article>)[\S\s])*<footer[^<>]*>((?!<\/article>)[\S\s])*<small[^<>]*>((?!<\/article>)[\S\s])*<\/small>((?!<\/article>)[\S\s])*<\/footer>((?!<\/article>)[\S\s])*<\/article>/igm
 				],
 				min: 5,
 				max: null,
@@ -304,7 +305,7 @@ export const rules = {
 				],
 				min: null,
 				max: null,
-				error: { message: "---", type: "info", }
+				error: { message: "---", type: "info" }
 			},
 			snippetCheck: {
 				pattern: /[^,{}\s\/]+\s(>|~|\+)\s[^,{}\s\/]+/igm,
@@ -325,7 +326,7 @@ export const rules = {
 				patterns: [/\d+(em|ex|ch|rem|vw|vh|vmin|vmax|%|cm|mm|in|px|pt|pc)/igm],
 				min: null,
 				max: null,
-				error: { message: "---", type: "info", }
+				error: { message: "---", type: "info" }
 			},
 			snippetCheck: {
 				pattern: /\d+(em|ex|ch|rem|vw|vh|vmin|vmax|%)/igm,
@@ -334,7 +335,7 @@ export const rules = {
 				valueFormat: "PERCENT",
 				error: {
 					message: "Too many absolute units used. Please use more relative units like 'em', 'rem', '%', 'vw' or 'vh'.",
-					type: "warning",
+					type: "warning"
 				}
 			}
 		},
