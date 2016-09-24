@@ -66,7 +66,6 @@ export class StructureMetric implements Check {
 					let subPath = Path.join(path, file);
 					let fileStats = FS.statSync(subPath);
 					if (fileStats.isDirectory()) {
-						// TODO: use async, handle error
 						counts.numberOfDirectories++;
 						let subDirectory = {};
 						structure[ 'directories' ].push(subDirectory);
