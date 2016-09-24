@@ -20,7 +20,7 @@ describe("Regex check", () => {
 	});
 
 	describe("checking simple patterns", () => {
-		let simpleRule: CheckRule = <CheckRule>{
+		let simpleRule: CheckRule = <CheckRule> {
 			snippet: {
 				patterns: [/<img[^<>]*>/igm],
 				min: 3,
@@ -89,7 +89,7 @@ describe("Regex check", () => {
 
 
 	describe("checking multiple patterns to find a list of elements", () => {
-		let multiRule:CheckRule = <CheckRule>{
+		let multiRule:CheckRule = <CheckRule> {
 			snippet: {
 				patterns: [ /<img[^<>]*>/igm, /<address[^<>]*>/igm, /<span[^<>]*>/igm ],
 				min: 2,
@@ -124,7 +124,7 @@ describe("Regex check", () => {
 			RegexCheck.checkRule(fileData, multiRule, filePath, results, errors);
 			expect(results[filePath].length).toEqual(1);
 			expect(results[filePath][0].rule).toEqual(multiRule);
-			expect(results[filePath][0].occurrence).toBe(4/3);
+			expect(results[filePath][0].occurrence).toBe(4 / 3);
 			expect(results[filePath][0].error).toEqual(multiRule.snippet.error);
 		});
 	});
@@ -132,7 +132,7 @@ describe("Regex check", () => {
 
 	describe("checking infinity patterns", () => {
 		it("should not return error results because #images > min", () => {
-			let simpleRule:CheckRule = <CheckRule>{
+			let simpleRule:CheckRule = <CheckRule> {
 				snippet: {
 					patterns: [/<img[^<>]*>/igm],
 					min: 3,
@@ -153,7 +153,7 @@ describe("Regex check", () => {
 		});
 
 		it("should not return error results because #images < max", () => {
-			let simpleRule:CheckRule = <CheckRule>{
+			let simpleRule: CheckRule = <CheckRule> {
 				snippet: {
 					patterns: [/<img[^<>]*>/igm],
 					min: null,
@@ -285,7 +285,7 @@ describe("Regex check", () => {
 			};
 
 			it("should not return error if absolute max is null", () => {
-				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				let rule: CheckRule = (<any> Object).assign({}, defaultRule);
 				rule.snippetCheck.max = null;
 
 				let snippets: string[] = ['abc', 'def', 'ago', 'aeo'];
@@ -296,7 +296,7 @@ describe("Regex check", () => {
 			});
 
 			it("should not return error if absolute min is null", () => {
-				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				let rule: CheckRule = (<any> Object).assign({}, defaultRule);
 				rule.snippetCheck.min = null;
 				rule.snippetCheck.max = 3;
 				rule.snippetCheck.error.message = "To much vocals.";
@@ -309,7 +309,7 @@ describe("Regex check", () => {
 			});
 
 			it("should not return error if percentage max is null", () => {
-				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				let rule: CheckRule = (<any> Object).assign({}, defaultRule);
 				rule.snippetCheck.min = 0.4;
 				rule.snippetCheck.max = null;
 				rule.snippetCheck.valueFormat = "PERCENT";
@@ -322,7 +322,7 @@ describe("Regex check", () => {
 			});
 
 			it("should not return error if percentage min is null", () => {
-				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				let rule: CheckRule = (<any> Object).assign({}, defaultRule);
 				rule.snippetCheck.min = null;
 				rule.snippetCheck.max = 0.5;
 				rule.snippetCheck.valueFormat = "PERCENT";
