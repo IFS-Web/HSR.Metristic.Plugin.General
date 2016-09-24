@@ -13,7 +13,7 @@
 					{{else}}
 						<li>&nbsp;➜
 							{{#compare rule.snippet.patterns.length '<=' 1}}
-							<strong>Found</strong> {{occurrence}},
+							<strong>Found</strong> {{round occurrence 2}},
 							{{/compare}}
 							<strong>Expected</strong>
 							{{#if bounds}}
