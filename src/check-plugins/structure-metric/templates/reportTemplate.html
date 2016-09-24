@@ -1,5 +1,14 @@
-<ul>
-	<li>{{counts.numberOfDirectories}} directories</li>
-	<li>{{counts.numberOfFiles}} files</li>
-</ul>
-{{> directoryPartial structure=structure}}
+<div class="row">
+	<!-- bootstrap uses float so use the newest bootstrap and compile it by $enable_flexbox -->
+	<div class="col-xs-12 col-md-8">
+		{{> directoryPartial structure=structure}}
+	</div>
+	<div class="col-xs-12 col-md-4">
+		<h4>Metrics</h4>
+		<ul>
+			<li>{{counts.numberOfDirectories}} directories</li>
+			<li>{{counts.numberOfFiles}} files</li>
+			<li>{{counts.numberOfLines}} lines</li>
+		</ul>
+	</div>
+</div>

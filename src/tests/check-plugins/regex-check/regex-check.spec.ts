@@ -1,6 +1,8 @@
+/* tslint:disable:max-file-line-count */
+
 /// <reference path="../../../../typings/tsd.d.ts" />
 "use strict";
-import {RegexCheck, CheckRule, CheckRuleResult} from "../../../check-plugins/regex-check/regex-check";
+import {RegexCheck, CheckRule} from "../../../check-plugins/regex-check/regex-check";
 
 
 describe("Regex check", () => {
@@ -17,10 +19,10 @@ describe("Regex check", () => {
 		expect(errors).toEqual([]);
 	});
 
-	describe("checking simple rules", () => {
-		let simpleRule: CheckRule = <CheckRule>{
+	describe("checking simple patterns", () => {
+		let simpleRule: CheckRule = <CheckRule> {
 			snippet: {
-				rule: /<img[^<>]*>/igm,
+				patterns: [/<img[^<>]*>/igm],
 				min: 3,
 				max: 5,
 				error: {
@@ -85,11 +87,54 @@ describe("Regex check", () => {
 		});
 	});
 
-	describe("checking infinity rules", () => {
+
+	describe("checking multiple patterns to find a list of elements", () => {
+		let multiRule:CheckRule = <CheckRule> {
+			snippet: {
+				patterns: [ /<img[^<>]*>/igm, /<address[^<>]*>/igm, /<span[^<>]*>/igm ],
+				min: 2,
+				max: 2,
+				error: {
+					message: "Not enough image elements or to many found."
+				}
+			}
+		};
+
+		it("should not return error results because the patterns matches", () => {
+			let fileData:string = `<p>Test</p>
+			<img src="blubb.jpg"><address
+			class="main">My Address</address>
+			<img>
+			<div><span class="raw">Blubb</span>
+			</div>
+			<span><address>His address</address></span>`;
+
+			RegexCheck.checkRule(fileData, multiRule, filePath, results, errors);
+			expect(results[ filePath ]).toBeUndefined();
+		});
+
+		it("should return error results because 2 elements are missing", () => {
+			let fileData:string = `<p>Test</p>
+			<img src="blubb.jpg"><address
+			class="main">My Address</address>
+			<img>
+			<div><span class="raw">Blubb</span>
+			</div>`;
+
+			RegexCheck.checkRule(fileData, multiRule, filePath, results, errors);
+			expect(results[filePath].length).toEqual(1);
+			expect(results[filePath][0].rule).toEqual(multiRule);
+			expect(results[filePath][0].occurrence).toBe(4 / 3);
+			expect(results[filePath][0].error).toEqual(multiRule.snippet.error);
+		});
+	});
+
+
+	describe("checking infinity patterns", () => {
 		it("should not return error results because #images > min", () => {
-			let simpleRule:CheckRule = <CheckRule>{
+			let simpleRule:CheckRule = <CheckRule> {
 				snippet: {
-					rule: /<img[^<>]*>/igm,
+					patterns: [/<img[^<>]*>/igm],
 					min: 3,
 					max: null,
 					error: {
@@ -108,9 +153,9 @@ describe("Regex check", () => {
 		});
 
 		it("should not return error results because #images < max", () => {
-			let simpleRule:CheckRule = <CheckRule>{
+			let simpleRule: CheckRule = <CheckRule> {
 				snippet: {
-					rule: /<img[^<>]*>/igm,
+					patterns: [/<img[^<>]*>/igm],
 					min: null,
 					max: 3,
 					error: {
@@ -129,14 +174,14 @@ describe("Regex check", () => {
 		});
 	});
 
-	describe("checking snippet rules", () => {
+	describe("checking snippet patterns", () => {
 		it("should return errors for missing src attributes", () => {
 			let rule: CheckRule = {
 				name: null,
 				files: null,
 				snippet: null,
 				snippetCheck: {
-					rule: /<img[^<>]*src="[^<>]*"[^<>]*>/igm,
+					pattern: /<img[^<>]*src="[^<>]*"[^<>]*>/igm,
 					min: 1,
 					max: 1,
 					valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
@@ -169,7 +214,7 @@ describe("Regex check", () => {
 				files: null,
 				snippet: null,
 				snippetCheck: {
-					rule: /\.[^\s]*\s+\{[^\{\}]*\}/igm,
+					pattern: /\.[^\s]*\s+\{[^\{\}]*\}/igm,
 					min: 0.3,
 					max: 0.5,
 					valueFormat: "PERCENT", // 'PERCENT' | 'NUMBER'
@@ -182,7 +227,7 @@ describe("Regex check", () => {
 				`p { color: red; }`,
 				`#bx { size: big; }`,
 				`.fg { background: real; }`,
-				`div, span { display: block; }`,
+				`div, span { display: block; }`
 			];
 
 			RegexCheck.checkSnippet(rule, snippets, filePath, results, errors);
@@ -200,7 +245,7 @@ describe("Regex check", () => {
 				snippet: null,
 				snippetCheck: {
 					// match lines with element selectors
-					rule: /^(([^\{\},]*,)*(\s|\t)*[\w\d\s<>~\[\]="]*(\s|\t)*(,[^\{\},]*)*)(\{[^\{\}]*\})/igm,
+					pattern: /^(([^\{\},]*,)*(\s|\t)*[\w\d\s<>~\[\]="]*(\s|\t)*(,[^\{\},]*)*)(\{[^\{\}]*\})/igm,
 					min: 0.5,
 					max: 0.7,
 					valueFormat: "PERCENT",
@@ -229,7 +274,7 @@ describe("Regex check", () => {
 				files: null,
 				snippet: null,
 				snippetCheck: {
-					rule: /[aeou]/igm,
+					pattern: /[aeou]/igm,
 					min: 1,
 					max: 1,
 					valueFormat: "NUMBER",
@@ -240,7 +285,7 @@ describe("Regex check", () => {
 			};
 
 			it("should not return error if absolute max is null", () => {
-				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				let rule: CheckRule = (<any> Object).assign({}, defaultRule);
 				rule.snippetCheck.max = null;
 
 				let snippets: string[] = ['abc', 'def', 'ago', 'aeo'];
@@ -251,7 +296,7 @@ describe("Regex check", () => {
 			});
 
 			it("should not return error if absolute min is null", () => {
-				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				let rule: CheckRule = (<any> Object).assign({}, defaultRule);
 				rule.snippetCheck.min = null;
 				rule.snippetCheck.max = 3;
 				rule.snippetCheck.error.message = "To much vocals.";
@@ -264,7 +309,7 @@ describe("Regex check", () => {
 			});
 
 			it("should not return error if percentage max is null", () => {
-				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				let rule: CheckRule = (<any> Object).assign({}, defaultRule);
 				rule.snippetCheck.min = 0.4;
 				rule.snippetCheck.max = null;
 				rule.snippetCheck.valueFormat = "PERCENT";
@@ -277,7 +322,7 @@ describe("Regex check", () => {
 			});
 
 			it("should not return error if percentage min is null", () => {
-				let rule: CheckRule = (<any>Object).assign({}, defaultRule);
+				let rule: CheckRule = (<any> Object).assign({}, defaultRule);
 				rule.snippetCheck.min = null;
 				rule.snippetCheck.max = 0.5;
 				rule.snippetCheck.valueFormat = "PERCENT";
@@ -295,7 +340,7 @@ describe("Regex check", () => {
 				name: "Time element",
 				files: "*.html",
 				snippet: {
-					rule: /<time[^<>\/]*>[^<>\/]*<\/time>/igm,
+					patterns: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
 					min: 1,
 					max: 3, // max: null means infinity
 					error: {
@@ -303,7 +348,7 @@ describe("Regex check", () => {
 					}
 				},
 				"snippetCheck": {
-					rule: /<time [^<>\/]*datetime="\d{4}-\d{2}-\d{2}"[^<>\/]*>[^<>\/]*<\/time>/igm,
+					pattern: /<time [^<>\/]*datetime="\d{4}-\d{2}-\d{2}"[^<>\/]*>[^<>\/]*<\/time>/igm,
 					min: 1,
 					max: 1,
 					valueFormat: "NUMBER", // 'PERCENT' | 'NUMBER'
