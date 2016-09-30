@@ -1,12 +1,13 @@
-"use strict";
+'use strict';
+
 let Path = require('path');
 let FS = require('fs');
 let ChildProcess = require('child_process');
 
-import {Check} from "./../../domain/model/check";
-import {Report} from "./../../domain/model/report";
-import {HtmlReport} from "./../../domain/model/html-report";
-import {Barrier} from "../../domain/model/barrier";
+import {Check} from "metristic-core";
+import {Report} from "metristic-core";
+import {HtmlReport} from "metristic-core";
+import {Barrier} from "metristic-core";
 
 
 interface FileInfo {

@@ -1,14 +1,14 @@
-/// <reference path="default-rules" />
 /* tslint:disable:max-line-length */
+'use strict';
 
 let Path = require('path');
 let FS = require('fs');
 let Glob = require("glob");
 
-import {Barrier} from "../../domain/model/barrier";
-import {Check} from "../../domain/model/check";
-import {Report} from "../../domain/model/report";
-import {HtmlReport} from "../../domain/model/html-report";
+import {Barrier} from "metristic-core";
+import {Check} from "metristic-core";
+import {Report} from "metristic-core";
+import {HtmlReport} from "metristic-core";
 import {rules} from "./default-rules";
 
 
