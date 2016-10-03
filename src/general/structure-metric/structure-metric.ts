@@ -25,6 +25,8 @@ interface DirectoryInfo {
 
 
 export class StructureMetric implements Check {
+	static assetsDirectory: string = Path.join(__dirname, './assets');
+
 	private reportTemplate: string;
 	private partials: {[name:string]:string};
 	private errors: Error[] = [];

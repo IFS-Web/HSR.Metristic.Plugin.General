@@ -52,6 +52,8 @@ export interface CheckRuleResult {
 
 
 export class RegexCheck implements Check {
+	static assetsDirectory: string = null;
+
 	private reportTemplate:string;
 	private errors:Error[] = [];
 	private rules: CheckRule[] = [

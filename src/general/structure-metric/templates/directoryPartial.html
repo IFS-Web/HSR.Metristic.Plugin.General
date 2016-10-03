@@ -2,7 +2,7 @@
 <ul class="structure list-unstyled">
 	{{#each structure.directories}}
 	<li>
-		<img src="/assets/images/icon-directory.svg" class="icon directory" alt="Directory" />
+		<img src="/assets/plugins/structuremetric/images/icon-directory.svg" class="icon directory" alt="Directory" />
 		{{> directoryPartial structure=this}}
 	</li>
 	{{/each}}
@@ -10,7 +10,7 @@
 <ul class="structure list-unstyled">
 	{{#each structure.files}}
 	<li>
-		<img src="/assets/images/icon-file.svg" class="icon file" alt="File" />
+		<img src="/assets/plugins/structuremetric/images/icon-file.svg" class="icon file" alt="File" />
 		{{name}}
 		<span class="file-info" title="File size: {{round size 3}} KiB">
 			<span class="icon">⚖</span> {{round size 2}} KiB

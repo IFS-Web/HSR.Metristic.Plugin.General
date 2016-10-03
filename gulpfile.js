@@ -2,7 +2,6 @@
 
 let gulp = require('gulp'),
 	ts = require('gulp-typescript'),
-	//sass = require('gulp-sass'),
 	sourcemaps = require('gulp-sourcemaps'),
 	jasmine = require('gulp-jasmine'),
 	tslint = require("gulp-tslint");
@@ -35,15 +34,7 @@ gulp.task('tslint', function() {
 			.pipe(tslint.report());
 });
 
-//gulp.task('sass', function () {
-	//return gulp.src(CONFIGURATION.sourceDirectoryAssets+'/**/*.scss')
-	/*	.pipe(sourcemaps.init())
-		.pipe(sass().on('error', sass.logError))
-		.pipe(sourcemaps.write())
-		.pipe(gulp.dest(CONFIGURATION.deploymentDirectoryAssets));
-});*/
-
-gulp.task('deploy', ['typescript', /*'sass',*/ 'deploy static'], function() {});
+gulp.task('deploy', ['typescript', 'deploy static'], function() {});
 
 gulp.task('test', ['typescript', 'tslint'], function() {
 	return gulp.src([CONFIGURATION.deploymentDirectory+'/**/*.spec.js'])
