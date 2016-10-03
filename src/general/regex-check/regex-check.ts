@@ -53,6 +53,7 @@ export interface CheckRuleResult {
 
 export class RegexCheck implements Check {
 	static assetsDirectory: string = null;
+	static styleSheetFiles: string[] = [];
 
 	private reportTemplate:string;
 	private errors:Error[] = [];
