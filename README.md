@@ -15,6 +15,7 @@ General plugins for Metristic application
 ## Installation
 
 * Install [node.js](https://nodejs.org/en/)
+Verify wc is available: `which wc`
 * Extract archive
 * Enter the extracted directory, e.g. `cd Metristic-plugin-general-1.0`.
 * Run `npm install --production` to install the dependencies.
@@ -63,6 +64,7 @@ module.exports = {
 ### Global dependencies
 
 * Node.js / npm
+* wc
 * Typescript Compiler ```npm install tsc --global```
 * Typings ```npm install typings --global```
 
