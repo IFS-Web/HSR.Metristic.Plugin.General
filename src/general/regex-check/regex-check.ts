@@ -94,6 +94,7 @@ export class RegexCheck implements Check {
 		rules.JS.codeEvaluationUsage
 	];
 	private results: { [name:string]:CheckRuleResult[] } = {};
+	private matchDatas: MatchData[] = [];
 
 	constructor(options:{ [name: string]: any }) {
 		this.rules = options['RegexCheck']['rules'] || this.rules;
@@ -103,6 +104,9 @@ export class RegexCheck implements Check {
 
 	public execute(directory: string, callback: (report: Report, errors?: Error[]) => {}): void {
 		let barrier: Barrier = new Barrier(this.rules.length).then(() => {
+			this.matchDatas.forEach((matchData) => {
+				RegexCheck.validateRuleMatchData(matchData, this.results, this.errors);
+			});
 			if (Object.keys(this.results).length > 0) {
 				let report:Report = new HtmlReport(
 					'Custom checks',
@@ -133,7 +137,7 @@ export class RegexCheck implements Check {
 							if (fileError || !fileData) {
 								this.errors.push(new Error(`Could not read file ${relativeFilePath}. Error ${fileError.message}`));
 							} else {
-								//RegexCheck.checkRule(fileData, rule, relativeFilePath, this.results, this.errors);
+								RegexCheck.checkRule(fileData, rule, relativeFilePath, this.matchDatas, this.errors);
 							}
 							barrier.finishedTask(ruleIndex + filePath);
 						});
