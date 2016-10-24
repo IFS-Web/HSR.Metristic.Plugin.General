@@ -233,6 +233,7 @@ export const rules = {
 	CSS: {
 		floatUsage: {
 			name: "Usage of float",
+			fileSpanning: true,
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [ /float:\s?(left|right);/igm ],
@@ -246,6 +247,7 @@ export const rules = {
 		},
 		stateEffectUsage: {
 			name: "Usage of pseudostates",
+			fileSpanning: true,
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [ /:hover/igm, /:active/igm, /:focus/igm, /:before/igm ],
@@ -272,6 +274,7 @@ export const rules = {
 		 */
 		headingNumbersUsage: {
 			name: "Usage of automatic numbers for headings",
+			fileSpanning: true,
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [
@@ -298,6 +301,7 @@ export const rules = {
 		 */
 		efficientSelectorsUsage: {
 			name: "Usage of efficient selectors",
+			fileSpanning: true,
 			files: "**/*.css",
 			snippet: {
 				patterns: [
@@ -321,6 +325,7 @@ export const rules = {
 		},
 		unitsUsage: {
 			name: "Usage of relative and absolute units",
+			fileSpanning: true,
 			files: "**/*.css",
 			snippet: {
 				patterns: [/\d+(em|ex|ch|rem|vw|vh|vmin|vmax|%|cm|mm|in|px|pt|pc)/igm],
@@ -341,6 +346,7 @@ export const rules = {
 		},
 		nthChildUsage: {
 			name: "Alternate row colors",
+			fileSpanning: true,
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [/tr:nth\-child\((2n|even|odd)\)/igm ],
@@ -355,6 +361,7 @@ export const rules = {
 		},
 		calcUsage: {
 			name: "Usage of calc()",
+			fileSpanning: true,
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [/calc\([^;]*\);/igm],
@@ -386,7 +393,7 @@ export const rules = {
 	JS: {
 		codeEvaluationUsage: {
 			name: "Usage of dangerous code evaluation",
-			files: "**/*js",
+			files: "**/*.js",
 			snippet: {
 				patterns: [/eval\(/igm, /new\sfunction\(/igm, /setTimeout\(/igm],
 				min: null,
