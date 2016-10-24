@@ -12,24 +12,31 @@ import {HtmlReport} from "metristic-core";
 import {rules} from "./default-rules";
 
 
+export interface Snippet {
+	patterns: RegExp[],
+	patternLabels?: string[],
+	min: number,
+	max: number,
+	error: CheckMessage
+}
+
+export interface SnippetCheck {
+	pattern: RegExp,
+	min: number,
+	max: number,
+	valueFormat: string,
+	error: CheckMessage
+}
+
 export interface CheckRule {
+	fileSpanning?: boolean,
 	name: string,
 	files: string,
-	snippet: {
-		patterns: RegExp[],
-		patternLabels?: string[],
-		min: number,
-		max: number,
-		error: CheckMessage
-	},
-	snippetCheck?: {
-		pattern: RegExp,
-		min: number,
-		max: number,
-		valueFormat: string,
-		error: CheckMessage
-	}
+	snippet: Snippet,
+	snippetCheck?: SnippetCheck
 }
+
+
 
 export interface CheckMessage {
 	message: string,
@@ -48,6 +55,23 @@ export interface CheckRuleResult {
 	bounds?: Bounds,
 	patternsFailed?: string[],
 	patternsSucceeded?: string[]
+}
+
+
+export interface SnippetMatchData {
+	snippet: string,
+	numberOfMatchesFound: number
+}
+
+export interface FileMatchData {
+	name: string,
+	numberOfMatchesFound: number[],
+	snippets?: SnippetMatchData[]
+}
+
+export interface MatchData {
+	rule: CheckRule,
+	files: FileMatchData[]
 }
 
 
@@ -109,7 +133,7 @@ export class RegexCheck implements Check {
 							if (fileError || !fileData) {
 								this.errors.push(new Error(`Could not read file ${relativeFilePath}. Error ${fileError.message}`));
 							} else {
-								RegexCheck.checkRule(fileData, rule, relativeFilePath, this.results, this.errors);
+								//RegexCheck.checkRule(fileData, rule, relativeFilePath, this.results, this.errors);
 							}
 							barrier.finishedTask(ruleIndex + filePath);
 						});
@@ -121,28 +145,93 @@ export class RegexCheck implements Check {
 		});
 	}
 
-	static checkRule(fileData, rule, filePath, results, errors) {
-		let patternsFailed: string[] = [];
-		let patternsSucceeded: string[] = [];
-		let fileContent = fileData.toString();
+	static validateRuleMatchData(matchData: MatchData, results, errors): void {
+		let rule = matchData.rule;
+		let snippet = rule.snippet;
+
+		// file spanning rule
+		if (rule.fileSpanning) {
+			let globalName = 'general';
+			let totalNumberOfMatchesList: number[] = matchData.files.reduce((numberOfMatchesSums, fileMatchData) => {
+					return numberOfMatchesSums.map((sum, index) => sum + fileMatchData.numberOfMatchesFound[index]);
+				},
+				rule.snippet.patterns.map((pattern) => 0) // we start with an array of 0 values (length = #patterns)
+			);
+			RegexCheck.checkOutOfBoundsAndAddCreateResultForFailingRules(totalNumberOfMatchesList, snippet, rule, globalName, results);
+		}
+
+		matchData.files.forEach((fileMatchData: FileMatchData) => {
+			// per file rule
+			if (!rule.fileSpanning) {
+				RegexCheck.checkOutOfBoundsAndAddCreateResultForFailingRules(fileMatchData.numberOfMatchesFound, snippet, rule, fileMatchData.name, results);
+			}
+
+			if (rule.snippetCheck && fileMatchData.snippets) {
+				RegexCheck.validateFileRuleSnippet(rule, fileMatchData.name, fileMatchData.snippets, results, errors);
+			}
+		});
+	}
+
+	private static checkOutOfBoundsAndAddCreateResultForFailingRules(totalNumberOfMatchesList: number[], snippet:Snippet, rule:CheckRule, globalName:string, results) {
+		let patternsFailed: string[] = [], patternsSucceeded: string[] = [];
+		let valuesOutOfBoundsList: boolean[] = totalNumberOfMatchesList.map((num) => RegexCheck.countOutOfBounds(num, snippet));
+		if (snippet.patternLabels) {
+			RegexCheck.addNamedPatternsToPatternsList(valuesOutOfBoundsList, patternsFailed, rule, patternsSucceeded);
+		}
+		if (valuesOutOfBoundsList.some((isFailed) => isFailed)) {
+			let averageLength: number = totalNumberOfMatchesList.reduce(
+				(previous, current) => previous + current
+			, 0) / totalNumberOfMatchesList.length;
+
+			RegexCheck.addRuleResult(globalName, rule, averageLength, snippet, snippet.error, results, patternsFailed, patternsSucceeded);
+		}
+	}
+
+	static validateFileRuleSnippet(rule: CheckRule, fileName: string, snippetMatchesData: SnippetMatchData[], results, errors: Error[]): void {
+		let snippetCheck: SnippetCheck = rule.snippetCheck;
+
+		switch (snippetCheck.valueFormat) {
+			case("NUMBER"):
+				snippetMatchesData.forEach((snippetMatchData: SnippetMatchData) => {
+					if (RegexCheck.countOutOfBounds(snippetMatchData.numberOfMatchesFound, snippetCheck)) {
+						RegexCheck.addRuleResult(fileName, rule, snippetMatchData.numberOfMatchesFound, snippetCheck, snippetCheck.error, results);
+					}
+				});
+				break;
+			case("PERCENT"):
+				let numberOfMatchingSnippetRules:number = snippetMatchesData.filter(
+					(snippetMatchData: SnippetMatchData) => snippetMatchData.numberOfMatchesFound > 0
+				).length;
+				let occurrence:number = numberOfMatchingSnippetRules / snippetMatchesData.length;
+				if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
+					RegexCheck.addRuleResult(fileName, rule, occurrence, snippetCheck, snippetCheck.error, results);
+				}
+				break;
+			default:
+				errors.push(new Error(`Rule "${rule.name} specifies invalid snippet check format (${snippetCheck.valueFormat}).`));
+		}
+	}
+
+	static checkRule(fileData, rule: CheckRule, filePath: string, matchData: MatchData[], errors: Error[]) {
+		let fileContent: string = fileData.toString();
 		let matchList: string[][] = rule.snippet.patterns.map(
 			(pattern) => RegexCheck.match(pattern, fileContent)
 		);
-		let patternsOutOfBounds: boolean[] = matchList.map((matches) => RegexCheck.countOutOfBounds(matches.length, rule.snippet));
-		if (rule.snippet.patternLabels) {
-			RegexCheck.addNamedPatternsToPatternsList(patternsOutOfBounds, patternsFailed, rule, patternsSucceeded);
+		let numberOfMatchesList: number[] = matchList.map((matches) => matches.length);
+		// TODO: declare find (typescript does not know it) and use it instead
+		let ruleMatchData: MatchData = matchData.filter((entry) => entry.rule == rule)[0] || null;
+		if (!ruleMatchData) {
+			ruleMatchData = { rule: rule, files: [] };
+			matchData.push(ruleMatchData);
 		}
+		let fileMatchData: FileMatchData = {
+				name: filePath,
+				numberOfMatchesFound: numberOfMatchesList
+		};
+		ruleMatchData.files.push(fileMatchData);
 
-		if (patternsOutOfBounds.some((isFailed) => isFailed)) {
-			let averageLength: number = matchList.reduce((previous, current) => previous + current.length, 0) / matchList.length;
-			RegexCheck.addRuleResult(filePath, rule, averageLength, rule.snippet, rule.snippet.error, results, patternsFailed, patternsSucceeded);
-		} else {
-			if (rule.snippetCheck) {
-				let allMatches: string[] = matchList.reduce(
-					(previous: string[], current: string[]) => previous.concat(current)
-				, []);
-				RegexCheck.checkSnippet(rule, allMatches, filePath, results, errors);
-			}
+		if (rule.snippetCheck) {
+			RegexCheck.checkSnippet(rule, matchList, fileMatchData);
 		}
 	};
 
@@ -154,32 +243,21 @@ export class RegexCheck implements Check {
 				patternsSucceeded.push(rule.snippet.patternLabels[ index ] || null);
 			}
 		});
-	}
+	};
 
-	static checkSnippet(rule, matches, filePath, results, errors) {
+	static checkSnippet(rule: CheckRule, matchList: string[][], fileMatchData: FileMatchData) {
 		let snippetCheck = rule.snippetCheck;
-		switch (snippetCheck.valueFormat) {
-			case("NUMBER"):
-				matches.forEach((match) => {
-					let snippetMatches: string[] = RegexCheck.match(snippetCheck.pattern, match);
-					let occurrence:number = snippetMatches.length;
-					if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
-						RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck, snippetCheck.error, results);
-					}
-				});
-				break;
-			case("PERCENT"):
-				let numberOfMatchingSnippetRules:number = matches.filter(
-					(matchResult) => RegexCheck.match(snippetCheck.pattern, matchResult).length > 0
-				).length;
-				let occurrence:number = numberOfMatchingSnippetRules / matches.length;
-				if (RegexCheck.countOutOfBounds(occurrence, snippetCheck)) {
-					RegexCheck.addRuleResult(filePath, rule, occurrence, snippetCheck, snippetCheck.error, results);
-				}
-				break;
-			default:
-				errors.push(new Error(`Rule "${rule.name} specifies invalid snippet check format (${snippetCheck.valueFormat}).`));
+		let matches: string[] = matchList.reduce(
+			(previous: string[], current: string[]) => previous.concat(current)
+		, []);
+
+		if (matches.length > 0 && !fileMatchData.snippets) {
+			fileMatchData.snippets = [];
 		}
+		matches.forEach((match) => {
+			let snippetMatches: string[] = RegexCheck.match(snippetCheck.pattern, match);
+			fileMatchData.snippets.push({ snippet: match, numberOfMatchesFound: snippetMatches.length });
+		});
 	};
 
 	private static countOutOfBounds(count: number, bounds: {min: number, max: number}) {
