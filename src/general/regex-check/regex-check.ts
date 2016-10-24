@@ -1,14 +1,12 @@
 /* tslint:disable:max-line-length */
+/* tslint:disable:max-file-line-count */
 'use strict';
 
 let Path = require('path');
 let FS = require('fs');
 let Glob = require("glob");
 
-import {Barrier} from "metristic-core";
-import {Check} from "metristic-core";
-import {Report} from "metristic-core";
-import {HtmlReport} from "metristic-core";
+import {Barrier, Check, Report, HtmlReport} from "metristic-core";
 import {rules} from "./default-rules";
 
 
@@ -132,15 +130,19 @@ export class RegexCheck implements Check {
 					barrier.expand(filePaths.length);
 
 					filePaths.forEach((filePath) => {
-						FS.readFile(filePath, (fileError, fileData) => {
-							let relativeFilePath:string = filePath.replace(directory, '');
-							if (fileError || !fileData) {
-								this.errors.push(new Error(`Could not read file ${relativeFilePath}. Error ${fileError.message}`));
-							} else {
-								RegexCheck.checkRule(fileData, rule, relativeFilePath, this.matchDatas, this.errors);
-							}
+						if (FS.statSync(filePath).isFile()) { // filter directories in case of incorrect regex
+							FS.readFile(filePath, (fileError, fileData) => {
+								let relativeFilePath:string = filePath.replace(directory, '');
+								if (fileError || !fileData) {
+									this.errors.push(new Error(`Could not read file ${relativeFilePath}. Error ${fileError.message}`));
+								} else {
+									RegexCheck.checkRule(fileData, rule, relativeFilePath, this.matchDatas, this.errors);
+								}
+								barrier.finishedTask(ruleIndex + filePath);
+							});
+						} else {
 							barrier.finishedTask(ruleIndex + filePath);
-						});
+						}
 					});
 
 					barrier.finishedTask(rule);
@@ -162,18 +164,33 @@ export class RegexCheck implements Check {
 				rule.snippet.patterns.map((pattern) => 0) // we start with an array of 0 values (length = #patterns)
 			);
 			RegexCheck.checkOutOfBoundsAndAddCreateResultForFailingRules(totalNumberOfMatchesList, snippet, rule, globalName, results);
-		}
 
-		matchData.files.forEach((fileMatchData: FileMatchData) => {
+			if (rule.snippetCheck ) {
+				if (rule.snippetCheck.valueFormat == "NUMBER") {
+					matchData.files.forEach((fileMatchData: FileMatchData) => {
+						if (fileMatchData.snippets) {
+							RegexCheck.validateFileRuleSnippet(rule, fileMatchData.name, fileMatchData.snippets, results, errors);
+						}
+					});
+				} else {
+					let allSnippetMatches: SnippetMatchData[] = matchData.files.reduce((snippetMatchDataList, fileMatchData) => {
+						return snippetMatchDataList.concat(fileMatchData);
+					}, []);
+					if (allSnippetMatches && allSnippetMatches.length > 0) {
+						RegexCheck.validateFileRuleSnippet(rule, globalName, allSnippetMatches, results, errors);
+					}
+				}
+			}
+		} else {
 			// per file rule
-			if (!rule.fileSpanning) {
+			matchData.files.forEach((fileMatchData: FileMatchData) => {
 				RegexCheck.checkOutOfBoundsAndAddCreateResultForFailingRules(fileMatchData.numberOfMatchesFound, snippet, rule, fileMatchData.name, results);
-			}
 
-			if (rule.snippetCheck && fileMatchData.snippets) {
-				RegexCheck.validateFileRuleSnippet(rule, fileMatchData.name, fileMatchData.snippets, results, errors);
-			}
-		});
+				if (rule.snippetCheck && fileMatchData.snippets) {
+					RegexCheck.validateFileRuleSnippet(rule, fileMatchData.name, fileMatchData.snippets, results, errors);
+				}
+			});
+		}
 	}
 
 	private static checkOutOfBoundsAndAddCreateResultForFailingRules(totalNumberOfMatchesList: number[], snippet:Snippet, rule:CheckRule, globalName:string, results) {

@@ -7,7 +7,8 @@ regex-check parameter documentation
     snippet check patterns matches
   * PERCENT checks if the percentage of the matching snippets is between the bounds
     Example: min 0.2, max null: Minimal 40% of the snippet found by the snippet patterns match
-    must match the snippet check patterns
+    must match the snippet check patterns. If fileSpanning == true this will be checks for all snippets file
+    independent.
 * Tipp: use https://regex101.com/#javascript
 * More example rules see default-rules.ts
 
@@ -21,6 +22,7 @@ regex-check parameter documentation
 			{
 			name: "Time element usage",
 			files: "*.html",
+			fileSpanning: true, // min & max will be counted for all found occurences - file independent
 			snippet: {
 				patterns: [/<time[^<>\/]*>[^<>\/]*<\/time>/igm],
 				min: 0, // min: null means bound will not be checked
