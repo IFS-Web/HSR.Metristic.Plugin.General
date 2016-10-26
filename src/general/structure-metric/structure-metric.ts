@@ -10,14 +10,14 @@ import {HtmlReport} from "metristic-core";
 import {Barrier} from "metristic-core";
 
 
-interface FileInfo {
+export interface FileInfo {
 	name: string,
 	size: number,
 	changed: Date,
 	numberOfLines: number
 }
 
-interface DirectoryInfo {
+export interface DirectoryInfo {
 	name: string,
 	files: FileInfo[],
 	directories: DirectoryInfo[]
@@ -89,7 +89,7 @@ export class StructureMetric implements Check {
 	}
 
 	protected static getFileInfo(filePath: string, fileStats: any, errors: Error[], callback: (fileInfo: FileInfo) => void): void {
-		let fileInfo:FileInfo = {
+		let fileInfo: FileInfo = {
 			name: Path.basename(filePath),
 			size: fileStats[ 'size' ] / 1024, // KiB
 			changed: new Date(fileStats[ 'mtime' ]),
