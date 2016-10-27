@@ -48,7 +48,8 @@ Gulp.task('deploy', ['typescript', 'deploy static'], function() {});
 Gulp.task('test', ['typescript', 'tslint'], function() {
 	return Gulp.src([CONFIGURATION.deploymentDirectory+'/**/*.spec.js'])
 		.pipe(Jasmine({
-			spec_dir: CONFIGURATION.deploymentDirectory
+			spec_dir: CONFIGURATION.deploymentDirectory,
+			includeStackTrace: true
 		}));
 });
 
