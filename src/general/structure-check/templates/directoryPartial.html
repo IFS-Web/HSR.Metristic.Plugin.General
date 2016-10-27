@@ -1,0 +1,29 @@
+{{#each fileResults as |fileResult fileName|}}
+	{{#if missing}}
+		<li>
+			<span class="label error">error</span>
+			<div class="content">
+				File "{{absolutePath}}" missing!
+			</div>
+		</li>
+	{{/if}}
+	{{#if wrongType}}
+		<li>
+			<span class="label error">error</span>
+			<div class="content">
+				File "{{absolutePath}}" is of wrong type!
+			</div>
+		</li>
+	{{/if}}
+	{{#if forbidden}}
+		<li>
+			<span class="label error">error</span>
+			<div class="content">
+				File "{{absolutePath}}" is not allowed!
+			</div>
+		</li>
+	{{/if}}
+	{{#if children}}
+		{{> directoryPartial fileResults=children}}
+	{{/if}}
+{{/each}}

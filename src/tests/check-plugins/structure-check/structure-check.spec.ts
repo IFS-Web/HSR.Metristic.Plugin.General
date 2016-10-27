@@ -116,7 +116,6 @@ describe("Structure check", () => {
 	});
 
 	describe("checking complete structure [2] ", () => {
-		// TODO: complete test
 		let rule: FileRule = {
 			additionalContentForbidden: true,
 			children: {
@@ -170,10 +169,10 @@ describe("Structure check", () => {
 		};
 
 		it('should match expected results [2.1]', () => {
-			let finished = false;
-			StructureCheck.walkStructure(new Barrier(1).then(() => { finished = true; }), fs, '/root', null, rule, fileResult, errors);
+			let barrier = new Barrier(1).then(() => {});
+			StructureCheck.walkStructure(barrier, fs, '/root', null, rule, fileResult, errors);
 			expect(fileResult).toEqual(expectedResults);
-			expect(finished).toBeTruthy();
+			expect(barrier.waitingFor()).toBe(0);
 		});
 	});
 });

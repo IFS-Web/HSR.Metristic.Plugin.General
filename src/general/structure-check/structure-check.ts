@@ -24,6 +24,27 @@ export interface FileResult {
 }
 
 
+/**
+ * Profile configuration example:
+ options: {
+ 	StructureCheck: {
+		rules: {
+			additionalContentForbidden: true,
+			children: {
+				'index.html': {},
+				'README.md': {},
+				'LICENSE': { type: 'FILE' },
+				'humans.txt': { optional: true },
+				'styles': {
+					children: {
+						'style.css': {}
+					}
+				}
+			}
+		}
+	}
+}
+ */
 export class StructureCheck implements Check {
 	static assetsDirectory: string = null;
 	static styleSheetFiles: string[] = [];
@@ -43,12 +64,12 @@ export class StructureCheck implements Check {
 	}
 
 	public execute(directory: string, callback: (report: Report, errors?: Error[]) => {}): void {
-		let result: { [name: string]: FileResult } = {};
+		let fileResults: { [name: string]: FileResult } = {};
 		let awaiter: Barrier = new Barrier(1).then(() => {
-			let report: Report = new HtmlReport('File structure check', this.reportTemplate, this.partials, { result: result });
+			let report: Report = new HtmlReport('File structure check', this.reportTemplate, this.partials, { fileResults: fileResults });
 			callback(report, this.errors);
 		});
-		StructureCheck.walkStructure(awaiter, FS, directory, null, this.rules, result, this.errors);
+		StructureCheck.walkStructure(awaiter, FS, directory, null, this.rules, fileResults, this.errors);
 	}
 
 	public static walkStructure(awaiter: Barrier, fs, path: string, parentRule: FileRule, rule: FileRule, result: { [name: string]: FileResult }, errors: Error[]): void {
