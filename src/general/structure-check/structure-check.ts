@@ -57,7 +57,7 @@ export class StructureCheck implements Check {
 
 	constructor(options:{ [name: string]: any }) {
 		this.rules = options['StructureCheck']['rules'] || this.rules;
-		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/report-template.html'), "utf8");
+		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/reportTemplate.html'), "utf8");
 		this.partials = {
 			directoryPartial: FS.readFileSync(Path.join(__dirname, './templates/directoryPartial.html'), "utf8")
 		};
@@ -92,7 +92,7 @@ export class StructureCheck implements Check {
 					StructureCheck.checkDirOrFile(fs, rule, (rule.children || {})[file] || null, subPath, directoryStatistics['children'][file]);
 
 					if (fs.existsSync(subPath) && fs.statSync(subPath).isDirectory()) {
-						StructureCheck.walkStructure(awaiter, fs, subPath, rule, rule.children[file] || {}, directoryStatistics['children'], errors);
+						StructureCheck.walkStructure(awaiter, fs, subPath, rule, (rule.children || {})[file] || {}, directoryStatistics['children'], errors);
 					} else {
 						awaiter.finishedTask(subPath);
 					}
@@ -118,7 +118,7 @@ export class StructureCheck implements Check {
 				}
 			} else {
 				fileResult.present = true;
-				if (rule.type && ((rule.type === 'FILE' && !fs.statSync().isFile()) || (rule.type !== 'FILE' && !fs.statSync().isDirectory()))) {
+				if (rule.type && ((rule.type === 'FILE' && !fs.statSync(path).isFile()) || (rule.type !== 'FILE' && !fs.statSync(path).isDirectory()))) {
 					fileResult.wrongType = true;
 				}
 			}

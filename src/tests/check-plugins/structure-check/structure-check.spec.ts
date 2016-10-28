@@ -38,14 +38,18 @@ let fs = {
 		return paths.indexOf(path) >= 0;
 	},
 	statSync: (path): { isDirectory: () => boolean, isFile: () => boolean } => {
-		return {
-			isDirectory: () => {
-				return dirs.indexOf(path) >= 0;
-			},
-			isFile: () => {
-				return files.indexOf(path) >= 0;
-			}
-		};
+		if (paths.indexOf(path) >= 0) {
+			return {
+				isDirectory: () => {
+					return dirs.indexOf(path) >= 0;
+				},
+				isFile: () => {
+					return files.indexOf(path) >= 0;
+				}
+			};
+		} else {
+			throw new Error(`ENOENT: no such file or directory, stat ${path}`);
+		}
 	}
 };
 
@@ -171,6 +175,64 @@ describe("Structure check", () => {
 		it('should match expected results [2.1]', () => {
 			let barrier = new Barrier(1).then(() => {});
 			StructureCheck.walkStructure(barrier, fs, '/root', null, rule, fileResult, errors);
+			expect(fileResult).toEqual(expectedResults);
+			expect(barrier.waitingFor()).toBe(0);
+		});
+	});
+
+	describe("checking for empty rules [3]", () => {
+		it("should not fail on missing child rule [3.1]", () => {
+			let paths2 = ['/root', '/root/calculator', '/root/calculator/script.js'];
+			let fs2 = {
+				readdir: (path: string, callback: (error: Error, files: string[]) => void) => {
+					switch (path) {
+						case '/root': callback(null, ['calculator']); break;
+						case '/root/calculator': callback(null, ['script.js']); break;
+						default: callback(null, []);
+					}
+				},
+				existsSync: (path): boolean => {
+					return paths2.indexOf(path) >= 0;
+				},
+				statSync: (path): { isDirectory: () => boolean, isFile: () => boolean } => {
+					if (paths2.indexOf(path) >= 0) {
+						return {
+							isDirectory: () => {
+								return ['/root', '/root/calculator'].indexOf(path) >= 0;
+							},
+							isFile: () => {
+								return ['/root/calculator/script.js'].indexOf(path) >= 0;
+							}
+						};
+					} else {
+						throw new Error(`ENOENT: no such file or directory, stat ${path}`);
+					}
+				}
+			};
+
+			let expectedResults: { [name: string]: FileResult } = {
+				'root': {
+					absolutePath: '/root',
+					children: {
+						'calculator': {
+							absolutePath: '/root/calculator',
+							present: true,
+							additional: true,
+							children: {
+								'script.js': {
+									absolutePath: '/root/calculator/script.js',
+									present: true,
+									additional: true
+								}
+							}
+						}
+					}
+				}
+			};
+
+			let rule = <FileRule> {};
+			let barrier = new Barrier(1).then(() => {});
+			StructureCheck.walkStructure(barrier, fs2, '/root', null, rule || {}, fileResult, errors);
 			expect(fileResult).toEqual(expectedResults);
 			expect(barrier.waitingFor()).toBe(0);
 		});
