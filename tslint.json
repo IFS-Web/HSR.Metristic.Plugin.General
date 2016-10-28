@@ -21,7 +21,7 @@
 		"use-strict": [true, "check-module"],
 		"use-isnan": true,
 		"indent": [ true, "tab" ],
-		"max-line-length": [true, 140],
+		"max-line-length": [true, 200],
 		"eofline": true,
 		"linebreak-style": [true, "LF"],
 		"max-file-line-count": [true, 300],

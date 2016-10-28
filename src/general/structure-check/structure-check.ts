@@ -66,15 +66,19 @@ export class StructureCheck implements Check {
 	public execute(directory: string, callback: (report: Report, errors?: Error[]) => {}): void {
 		let fileResults: { [name: string]: FileResult } = {};
 		let awaiter: Barrier = new Barrier(1).then(() => {
-			let report: Report = new HtmlReport('File structure check', this.reportTemplate, this.partials, { fileResults: fileResults });
-			callback(report, this.errors);
+			if (Object.keys(fileResults).length > 0) {
+				let report: Report = new HtmlReport('File structure check', this.reportTemplate, this.partials, { fileResults: fileResults });
+				callback(report, this.errors);
+			} else {
+				callback(null);
+			}
 		});
-		StructureCheck.walkStructure(awaiter, FS, directory, null, this.rules, fileResults, this.errors);
+		StructureCheck.walkStructure(awaiter, FS, directory, directory, null, this.rules, fileResults, this.errors);
 	}
 
-	public static walkStructure(awaiter: Barrier, fs, path: string, parentRule: FileRule, rule: FileRule, result: { [name: string]: FileResult }, errors: Error[]): void {
+	public static walkStructure(awaiter: Barrier, fs, rootPath: string, path: string, parentRule: FileRule, rule: FileRule, result: { [name: string]: FileResult }, errors: Error[]): void {
 		if (!result[Path.basename(path)]) {
-			result[Path.basename(path)] = { absolutePath: path };
+			result[Path.basename(path)] = { absolutePath: path.replace(rootPath, '') };
 		}
 		let directoryStatistics: FileResult = result[Path.basename(path)];
 		directoryStatistics.children = {};
@@ -88,11 +92,12 @@ export class StructureCheck implements Check {
 
 				fileNameList.forEach((file) => {
 					let subPath = Path.join(path, file);
-					directoryStatistics['children'][file] = { absolutePath: subPath };
-					StructureCheck.checkDirOrFile(fs, rule, (rule.children || {})[file] || null, subPath, directoryStatistics['children'][file]);
+					directoryStatistics['children'][file] = { absolutePath: subPath.replace(rootPath, '') };
+					let fileRule: FileRule = (rule.children || {})[file] || (rule.children || {})['*'];
+					StructureCheck.checkDirOrFile(fs, rule, fileRule || null, subPath, directoryStatistics['children'][file]);
 
 					if (fs.existsSync(subPath) && fs.statSync(subPath).isDirectory()) {
-						StructureCheck.walkStructure(awaiter, fs, subPath, rule, (rule.children || {})[file] || {}, directoryStatistics['children'], errors);
+						StructureCheck.walkStructure(awaiter, fs, rootPath, subPath, rule, fileRule || {}, directoryStatistics['children'], errors);
 					} else {
 						awaiter.finishedTask(subPath);
 					}
@@ -104,7 +109,11 @@ export class StructureCheck implements Check {
 
 	private static mergeRuleAndDirectoryFiles(ruleFiles: {[name: string]: FileRule}, files: string[]): string[] {
 		let fileNameList = {};
-		Object.keys(ruleFiles).forEach((file) => { fileNameList[file] = null; });
+		Object.keys(ruleFiles).forEach((file) => {
+			if (file !== '*') {
+				fileNameList[file] = null;
+			}
+		});
 		files.forEach((file) => { fileNameList[file] = null; });
 		return Object.keys(fileNameList);
 	}

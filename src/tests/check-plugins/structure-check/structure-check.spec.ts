@@ -129,7 +129,10 @@ describe("Structure check", () => {
 				'humans.txt': { optional: true },
 				'styles': {
 					children: {
-						'style.css': {}
+						'style.css': {},
+						'*': {
+							type: 'DIR'
+						}
 					}
 				}
 			}
@@ -152,7 +155,11 @@ describe("Structure check", () => {
 						present: true,
 						children: {
 							'style.css': { absolutePath: '/root/styles/style.css', present: true },
-							'app.css': { absolutePath: '/root/styles/app.css', present: true, additional: true }
+							'app.css': {
+								absolutePath: '/root/styles/app.css',
+								present: true,
+								wrongType: true
+							}
 						}
 					},
 					'scripts' : {
@@ -174,7 +181,7 @@ describe("Structure check", () => {
 
 		it('should match expected results [2.1]', () => {
 			let barrier = new Barrier(1).then(() => {});
-			StructureCheck.walkStructure(barrier, fs, '/root', null, rule, fileResult, errors);
+			StructureCheck.walkStructure(barrier, fs, '', '/root', null, rule, fileResult, errors);
 			expect(fileResult).toEqual(expectedResults);
 			expect(barrier.waitingFor()).toBe(0);
 		});
@@ -232,7 +239,7 @@ describe("Structure check", () => {
 
 			let rule = <FileRule> {};
 			let barrier = new Barrier(1).then(() => {});
-			StructureCheck.walkStructure(barrier, fs2, '/root', null, rule || {}, fileResult, errors);
+			StructureCheck.walkStructure(barrier, fs2, '', '/root', null, rule || {}, fileResult, errors);
 			expect(fileResult).toEqual(expectedResults);
 			expect(barrier.waitingFor()).toBe(0);
 		});
