@@ -59,7 +59,7 @@ export class StructureCheck implements Check {
 		this.rules = options['StructureCheck']['rules'] || this.rules;
 		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/reportTemplate.html'), "utf8");
 		this.partials = {
-			directoryPartial: FS.readFileSync(Path.join(__dirname, './templates/directoryPartial.html'), "utf8")
+			structurePartial: FS.readFileSync(Path.join(__dirname, './templates/structurePartial.html'), "utf8")
 		};
 	}
 
