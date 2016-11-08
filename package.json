@@ -5,8 +5,7 @@
   "main": "app/index.js",
   "typings": "src/index",
   "scripts": {
-    "test": "gulp test",
-    "postinstall": "gulp deploy"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
