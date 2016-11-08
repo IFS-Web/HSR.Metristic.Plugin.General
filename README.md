@@ -69,8 +69,6 @@ See [HSR.Metristic documentation: development](https://github.com/wasabidevelope
 Deploy app to directory `app`:
 ```shell
 npm run gulp deploy
-# or
-npm deploy
 ```
 
 Compile TS and run tests:
