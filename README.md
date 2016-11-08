@@ -31,13 +31,13 @@ var StructureMetric = require("metristic-plugin-general").StructureMetric;
 var RegexCheck = require("metristic-plugin-general").RegexCheck;
 var rules = require("metristic-plugin-general").rules;
 
-module.exports = {	
+module.exports = {
 	"general": {
 		name: 'General project',
 		description: 'Check file structure',
 		checks: [StructureMetric],
 		options: {}
-	},	
+	},
 	"webCheck": {
 		name: 'Web project checking',
 		description: 'Validate HTML and JS and check for Selector and unit usage in CSS.',
@@ -68,12 +68,14 @@ See [HSR.Metristic documentation: development](https://github.com/wasabidevelope
 
 Deploy app to directory `app`:
 ```shell
-gulp deploy
+npm run gulp deploy
+# or
+npm deploy
 ```
 
 Compile TS and run tests:
 ```shell
-gulp test
+npm run gulp test
 # or
 npm test
 ```
