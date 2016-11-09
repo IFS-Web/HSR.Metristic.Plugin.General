@@ -1,0 +1,32 @@
+{{#each fileResults as |fileResult fileName|}}
+	{{#compare absolutePath '!=' ''}}
+		<li>
+			{{#if missing}}
+				<span class="label error">missing</span>
+				<div class="content">
+					{{absolutePath}} <strong>is missing!</strong>
+				</div>
+			{{else if forbidden}}
+				<li>
+					<span class="label error">forbidden</span>
+					<div class="content">
+						{{absolutePath}} <strong>is not allowed!</strong>
+					</div>
+				</li>
+			{{else if wrongType}}
+				<li>
+					<span class="label error">type</span>
+					<div class="content">
+						{{absolutePath}} <strong>is of wrong type!</strong>
+					</div>
+				</li>
+			{{else}}
+				<span class="label success">&#10003; ok</span>
+				<div class="content">{{absolutePath}}</div>
+			{{/if}}
+		</li>
+	{{/compare}}
+	{{#if children}}
+		{{> structurePartial fileResults=children}}
+	{{/if}}
+{{/each}}

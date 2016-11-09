@@ -1,0 +1,28 @@
+<span>{{name}}</span>
+<ul class="structure list-unstyled">
+	{{#each structure.directories}}
+	<li>
+		<img src="/assets/plugins/structuremetric/images/icon-directory.svg" class="icon directory" alt="Directory" />
+		{{> directoryPartial structure=this}}
+	</li>
+	{{/each}}
+</ul>
+<ul class="structure list-unstyled">
+	{{#each structure.files}}
+	<li>
+		<img src="/assets/plugins/structuremetric/images/icon-file.svg" class="icon file" alt="File" />
+		{{name}}
+		<span class="file-info" title="File size: {{round size 3}} KiB">
+			<span class="icon">⚖</span> {{round size 2}} KiB
+		</span>
+		{{#if numberOfLines}}
+			<span class="file-info" title="{{numberOfLines}} lines">
+				<span class="icon">☰</span> {{numberOfLines}}
+			</span>
+		{{/if}}
+		<span class="file-info" title="Last changed {{moment changed "YY/MM/D hh:mm"}}">
+			<span class="icon">◴</span> {{moment changed "YY/MM/D hh:mm"}}
+		</span>
+	</li>
+	{{/each}}
+</ul>

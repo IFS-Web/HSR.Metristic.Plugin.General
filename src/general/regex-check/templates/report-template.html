@@ -1,0 +1,39 @@
+<div class="plugin regex-check">
+{{#each reports as |fileReports fileName|}}
+	<h3>{{fileName}}</h3>
+	<ul class="list-unstyled message-list">
+		{{#each fileReports}}
+			<li>
+				{{#if error.type}}
+				<span class="label {{error.type}}">{{error.type}}</span>
+				{{/if}}
+				<div class="content">
+					<strong>{{rule.name}}</strong>: {{{error.message}}}
+					<ul class="list-unstyled">
+						{{#if error.hideOccurrencesInReport}}
+						{{else}}
+							<li>&nbsp;➜
+								{{#compare rule.snippet.patterns.length '<=' 1}}
+								<strong>Found</strong> {{round occurrence 2}},
+								{{/compare}}
+								<strong>Expected</strong>
+								{{#if bounds}}
+								{{#compare bounds.min '!=' null}}{{bounds.min}} &lt; {{/compare}}X{{#compare bounds.max '!=' null}} &lt; {{bounds.max}}{{/compare}}
+								{{/if}}
+							</li>
+						{{/if}}
+						{{#if patternsFailed}}
+							<li>&nbsp;➜
+								<strong>Failed items</strong>:
+								{{#each patternsFailed}}
+									<i>{{this}}</i>{{#unless @last}}, {{/unless}}
+								{{/each}}
+							</li>
+						{{/if}}
+					</ul>
+				</div>
+			</li>
+		{{/each}}
+	</ul>
+{{/each}}
+</div>
