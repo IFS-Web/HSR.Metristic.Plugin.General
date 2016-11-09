@@ -30,6 +30,8 @@ Import the plugins in the project.js of your main project:
 var StructureMetric = require("metristic-plugin-general").StructureMetric;
 var RegexCheck = require("metristic-plugin-general").RegexCheck;
 var rules = require("metristic-plugin-general").rules;
+var StructureCheck = require("metristic-plugin-general").StructureCheck;
+
 
 module.exports = {
 	"general": {
@@ -41,7 +43,7 @@ module.exports = {
 	"webCheck": {
 		name: 'Web project checking',
 		description: 'Validate HTML and JS and check for Selector and unit usage in CSS.',
-		checks: [StructureMetric, RegexCheck],
+		checks: [StructureMetric, RegexCheck, StructureCheck],
 		options: {
 			RegexCheck: {
 				rules: [
@@ -51,6 +53,48 @@ module.exports = {
 					rules.CSS.unitsUsage,
 					rules.JS.codeEvaluationUsage
 				]
+			},			
+			StructureCheck: {
+				rules: {
+					children: {
+						'*': {
+							additionalContentForbidden: true,
+							children: {
+								'index.html': {},
+								'calculator': {
+									additionalContentForbidden: true,
+									children: {
+										'index.html': {},
+										'scripts': {
+											additionalContentForbidden: true,
+											children: {
+												'calculator.js': {}
+											}
+										},
+										'styles': {
+											additionalContentForbidden: true,
+											children: {
+												'style.css': {}
+											}
+										}
+									}
+								},
+								'scripts': {
+									additionalContentForbidden: true,
+									children: {
+										'font-size.js': {}
+									}
+								},
+								'styles': {
+									additionalContentForbidden: true,
+									children: {
+										'styles.css': {}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	},
