@@ -9,9 +9,7 @@ let Gulp = require('gulp'),
 
 var CONFIGURATION = {
 	sourceDirectory: __dirname+'/src',
-	sourceDirectoryAssets: __dirname+'/src/assets',
 	deploymentDirectory: __dirname+'/app',
-	deploymentDirectoryAssets: __dirname+'/app/assets',
 	tsLintConfig: {
 		configuration: './tslint.json'
 	}
