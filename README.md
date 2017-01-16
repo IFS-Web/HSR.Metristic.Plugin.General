@@ -9,7 +9,7 @@ General plugins for Metristic application
 
 ## Releases / Production
 
-⬇ Download on the [Release page](https://github.com/wasabideveloper/HSR.Metristic.Plugin.General/releases)
+⬇ Download on the [Release page](https://github.com/IFS-Web/HSR.Metristic.Plugin.General/releases)
 
 
 ## Installation
@@ -105,7 +105,7 @@ module.exports = {
 
 ## Development / build the project from source
 
-See [HSR.Metristic documentation: development](https://github.com/wasabideveloper/HSR.Metristic#development)
+See [HSR.Metristic documentation: development](https://github.com/IFS-Web/HSR.Metristic#development)
 
 
 ### Commands
