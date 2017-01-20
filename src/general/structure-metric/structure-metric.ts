@@ -2,7 +2,7 @@
 
 let Path = require('path');
 let FS = require('fs');
-let ChildProcess = require('child_process');
+let countLinesInFile = require('count-lines-in-file');
 
 import {Check} from "metristic-core";
 import {Report} from "metristic-core";
@@ -95,7 +95,8 @@ export class StructureMetric implements Check {
 			changed: new Date(fileStats[ 'mtime' ]),
 			numberOfLines: null
 		};
-		ChildProcess.exec(`wc -l < "${filePath}"`, function (error, numberOfLines) {
+
+		countLinesInFile(filePath, (error: Error, numberOfLines: number) => {
 			if (error) {
 				errors.push(error);
 			} else {

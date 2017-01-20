@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "child_process": "^1.0.2",
+    "count-lines-in-file": "^1.0.2",
     "fs": "0.0.1-security",
     "glob": "^7.1.0",
     "metristic-core": ">1.0.0-beta",
