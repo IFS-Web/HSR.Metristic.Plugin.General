@@ -107,14 +107,15 @@ export const rules = {
 					/<figcaption[^<>]*>/igm,
 					/<small[^<>]*>/igm,
 					/<object[^<>]*>/igm,
-					/<form[^<>]*>/igm
+					/<form[^<>]*>/igm,
+					/<a\s*href="tel:[^<>]*>/igm,
+					/<a\s*href="mailto:[^<>]*>/igm
 				],
-				patternLabels: [ 'address', 'meta', 'link', 'iframe', 'track', 'definition list', 'unordered list', 'ordered list', 'main', 'nav', 'aside', 'article', 'header', 'footer', 'figure', 'figcaption', 'small', 'object', 'form'
-				],
+				patternLabels: [ 'address', 'meta', 'link', 'iframe', 'track', 'definition list', 'unordered list', 'ordered list', 'main', 'nav', 'aside', 'article', 'header', 'footer', 'figure', 'figcaption', 'small', 'object', 'form', 'a href="tel:', 'a href="mailto:'],
 				min: 1,
 				max: null,
 				error: {
-					message: "Some of the following expected elements not found: address, meta, bookmark icon, iframe, video track, definition-, un- y ordered list, main, nav, aside, article, header, footer, figure, figcaption, small, object, form",
+					message: "Some of the following expected elements not found: address, meta, bookmark icon, iframe, video track, definition-, un- y ordered list, main, nav, aside, article, header, footer, figure, figcaption, small, object, form, a with tel/mailto",
 					type: "error"
 				}
 			}
