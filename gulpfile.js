@@ -37,7 +37,7 @@ Gulp.task('tslint', function() {
 });
 
 Gulp.task('watch', function() {
-	Gulp.watch(CONFIGURATION.sourceDirectory+'/**/*.ts', ['typescript']);
+	Gulp.watch(CONFIGURATION.sourceDirectory+'/**/*.ts', ['typescript', 'deploy']);
 	Gulp.watch(STATIC_FILES, ['deploy static']);
 });
 
