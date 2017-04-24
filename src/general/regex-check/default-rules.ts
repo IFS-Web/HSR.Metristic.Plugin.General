@@ -279,7 +279,7 @@ export const rules = {
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [
-					/h\d:before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*content:\s?counter\(\w*\);[^\{\}]*\}/igm,
+					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*content:\s?counter\(\w*\);[^\{\}]*\}/igm,
 					/\{[^\{\}]*counter-reset:\s?\w*;[^\{\}]*\}/igm
 				],
 				min: 1,
