@@ -205,7 +205,7 @@ export const rules = {
 			files: "*/*.html",
 			snippet: {
 				patterns: [
-					/<object[^<>]*(data="[^<>"]*\.svg"[^<>]*type="image\/svg\+xml"|type="image\/svg\+xml"[^<>]*data="[^<>"]*\.svg")[^<>]*>[^<>]*<\/object>/igm
+					/<object[^<>]*(data="[^<>"]*\.svg"[^<>]*type="image\/svg\+xml"|type="image\/svg\+xml"[^<>]*data="[^<>"]*\.svg")[^<>]*>.*?<\/object>/igs
 				],
 				min: 1,
 				max: 1,
