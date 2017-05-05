@@ -73,7 +73,13 @@ export const rules = {
 			snippet: {
 				// [\S\s] = all characters incl. whitespace
 				// ((?!<(\/?dl|\/?nav)>)[\S\s])* = all characters excluding <(\/?dl|\/?nav)>
-				patterns: [ /((<br( )?\/?>)|(<embed[^<>]*>)|(<input[^<>]*type="(submit|reset|button)"[^<>]*\/?>)|(class="clear(-fix)?")|(<d(t|d)[^<>]*>[^<>]*<a[^<>]*>((?!<\/a>)[\S\s])*<\/a>[^<>]*<\/d(t|d)>)|(<img[^<>]*src="data:[^<>]*"[^<>]*\/?>))/igm ],
+				patterns: [
+					/(<br( )?\/?>)/igm,
+					/(<embed[^<>]*>)/igm,
+					/(<input[^<>]*type="(submit|reset|button)"[^<>]*\/?>)/igm,
+					/(class="clear(-fix)?")/igm ,
+					/(<d(t|d)[^<>]*>[^<>]*<a[^<>]*>((?!<\/a>)[\S\s])*<\/a>[^<>]*<\/d(t|d)>)/igm ,
+					/(<img[^<>]*src="data:[^<>]*"[^<>]*\/?>)/igm ],
 
 				patternLabels: [ 'br', 'embed', 'input submit/reset/button', 'clear-fix', 'dl-navigations', 'data URI' ],
 				min: null,
@@ -205,7 +211,7 @@ export const rules = {
 			files: "*/*.html",
 			snippet: {
 				patterns: [
-					/<object[^<>]*(data="[^<>"]*\.svg"[^<>]*type="image\/svg\+xml"|type="image\/svg\+xml"[^<>]*data="[^<>"]*\.svg")[^<>]*>[^<>]*<\/object>/igm
+					/<object[^<>]*(data="[^<>"]*\.svg"[^<>]*type="image\/svg\+xml"|type="image\/svg\+xml"[^<>]*data="[^<>"]*\.svg")[^<>]*>[\s\S]*?<\/object>/ig
 				],
 				min: 1,
 				max: 1,
@@ -279,7 +285,7 @@ export const rules = {
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [
-					/h\d:before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*content:\s?counter\(\w*\);[^\{\}]*\}/igm,
+					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*content:\s?counter\(\w*\);[^\{\}]*\}/igm,
 					/\{[^\{\}]*counter-reset:\s?\w*;[^\{\}]*\}/igm
 				],
 				min: 1,
