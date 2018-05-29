@@ -100,7 +100,7 @@ export class RegexCheck implements Check {
 		this.reportTemplate = FS.readFileSync(Path.join(__dirname, './templates/report-template.html'), "utf8");
 	}
 
-	public execute(directory: string, callback: (report: Report, errors?: Error[]) => {}): void {
+	public execute(directory: string, callback: (report: Report, errors?: Error[]) => void): void {
 		let barrier: Barrier = new Barrier(this.rules.length).then(() => {
 			this.matchDatas.forEach((matchData) => {
 				RegexCheck.validateRuleMatchData(matchData, this.results, this.errors);

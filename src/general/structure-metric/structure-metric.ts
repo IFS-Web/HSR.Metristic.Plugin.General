@@ -40,7 +40,7 @@ export class StructureMetric implements Check {
 	}
 
 
-	public execute(directory: string, callback: (report: Report, errors?:Error[]) => {}): void {
+	public execute(directory: string, callback: (report: Report, errors?:Error[]) => void): void {
 		let statistics: any = {
 			structure: {},
 			counts: {

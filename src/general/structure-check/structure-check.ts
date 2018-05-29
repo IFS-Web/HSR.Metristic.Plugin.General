@@ -63,7 +63,7 @@ export class StructureCheck implements Check {
 		};
 	}
 
-	public execute(directory: string, callback: (report: Report, errors?: Error[]) => {}): void {
+	public execute(directory: string, callback: (report: Report, errors?: Error[]) => void): void {
 		let fileResults: { [name: string]: FileResult } = {};
 		let awaiter: Barrier = new Barrier(1).then(() => {
 			if (Object.keys(fileResults).length > 0) {
