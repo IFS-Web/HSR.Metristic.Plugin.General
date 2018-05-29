@@ -6,11 +6,11 @@ export const rules = {
 	HTML: {
 		bookmarkIconUsage: {
 			name: "Bookmark icon",
-			files: "*.html",
+			files: "*/*.html",
 			snippet: {
 				patterns: [/<link[^<>]*rel="icon"[^<>]*\/?>/igm],
 				min: 1,
-				max: 1,
+				max: null,
 				error: {
 					message: 'No bookmark icon found.',
 					type: "warning"
@@ -19,7 +19,7 @@ export const rules = {
 		},
 		styleSheetUsage: {
 			name: "Stylesheets",
-			files: "*.html",
+			files: "*/*.html",
 			snippet: {
 				patterns: [/<link[^<>]*rel="stylesheet"[^<>]*\/?>/igm],
 				min: 1,
