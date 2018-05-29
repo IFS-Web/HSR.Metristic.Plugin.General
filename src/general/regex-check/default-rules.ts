@@ -97,7 +97,6 @@ export const rules = {
 				patterns: [
 					/<address[^<>]*>/igm,
 					/<meta[^<>]*name="\w*"[^<>]*>/igm,
-					/<link[^<>]*rel="icon"[^<>]*>/igm,
 					/<iframe[^<>]*>/igm,
 					/<track[^<>]*>/igm,
 					/<dl>((?!<\/dl>)[\S\s])*<\/dl>/igm,
@@ -117,7 +116,7 @@ export const rules = {
 					/<a\s*href="tel:[^<>]*>/igm,
 					/<a\s*href="mailto:[^<>]*>/igm
 				],
-				patternLabels: [ 'address', 'meta', 'link', 'iframe', 'track', 'definition list', 'unordered list', 'ordered list', 'main', 'nav', 'aside', 'article', 'header', 'footer', 'figure', 'figcaption', 'small', 'object', 'form', 'a href="tel:', 'a href="mailto:'],
+				patternLabels: [ 'address', 'meta', 'iframe', 'track', 'definition list', 'unordered list', 'ordered list', 'main', 'nav', 'aside', 'article', 'header', 'footer', 'figure', 'figcaption', 'small', 'object', 'form', 'a href="tel:', 'a href="mailto:'],
 				min: 1,
 				max: null,
 				error: {
@@ -140,7 +139,7 @@ export const rules = {
 					/<select[^<>]*>[^<>]*(<option[^<>]*value="[^<>]*"[^<>]*>[^<>]*<\/option>[^<>]*)*[^<>]*<\/select>/igm,
 					/<textarea[^<>]*>/igm
 				],
-				patternLabels: [ 'output', 'range input', 'search input', 'radio input', 'email input', 'url input', 'select', 'textarea'
+				patternLabels: [ 'output', 'range input', 'search input', 'radio input', 'email input', 'url input', 'select ( all values are required )', 'textarea'
 				],
 				min: 1,
 				max: null,
@@ -196,12 +195,12 @@ export const rules = {
 			files: "*/*.html",
 			snippet: {
 				patterns: [
-					/<article[^<>]*>((?!<\/article>)[\S\s])*<header[^<>]*>((?!<\/article>)[\S\s])*<h\d>((?!<\/article>)[\S\s])*<\/h\d>((?!<\/article>)[\S\s])*<\/header>((?!<\/article>)[\S\s])*<footer[^<>]*>((?!<\/article>)[\S\s])*<small[^<>]*>((?!<\/article>)[\S\s])*<\/small>((?!<\/article>)[\S\s])*<\/footer>((?!<\/article>)[\S\s])*<\/article>/igm
+                    /<article[^<>]*>((?!<\/article>)[\S\s])*<header[^<>]*>((?!<\/article>)[\S\s])*<h\d>((?!<\/article>)[\S\s])*<\/h\d>((?!<\/article>)[\S\s])*<\/header>((?!<\/article>)[\S\s])*<footer[^<>]*>((?!<\/article>)[\S\s])*<\/footer>((?!<\/article>)[\S\s])*<\/article>/igm
 				],
 				min: 5,
 				max: null,
 				error: {
-					message: 'Not enough articles found containing header, footer and legal declaration.',
+					message: 'Not enough articles found containing header, footer.',
 					type: "error"
 				}
 			}
@@ -264,7 +263,7 @@ export const rules = {
 				error: {
 					message: "Too less state depending styling found. Add hover, active, focus styles for links and buttons and use :before",
 					type: "error",
-					hideOccurrencesInReport: true
+					hideOccurrencesInReport: false
 				}
 			}
 		},
@@ -285,7 +284,7 @@ export const rules = {
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [
-					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*content:\s?counter\(\w*\);[^\{\}]*\}/igm,
+					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*content:\s?counter\(\w*\)[\s"']*;[^\{\}]*\}/igm,
 					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*\}/igm,
 					/\{[^\{\}]*counter-reset:\s?\w*;[^\{\}]*\}/igm
 				],
@@ -391,7 +390,7 @@ export const rules = {
 				max: 1,
 				valueFormat: "NUMBER",
 				error: {
-					message: "Calc not used the proposed way.",
+					message: "Calc not used the proposed way. (Proposed way: 56.25% * ViewportWidth - Margins)",
 					type: "warning",
 					hideOccurrencesInReport: true
 				}
