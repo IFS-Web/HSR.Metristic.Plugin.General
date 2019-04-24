@@ -179,7 +179,7 @@ export const rules = {
 				}
 			},
 			snippetCheck: {
-				pattern: /<article[^<>]*>((?!<\/article>)[\S\s])*<header[^<>]*>((?!<\/article>)[\S\s])*<h\d>((?!<\/article>)[\S\s])*<\/h\d>((?!<\/article>)[\S\s])*<\/header>((?!<\/article>)[\S\s])*<\/article>/igm,
+				pattern: /<article[^<>]*>((?!<\/article>)[\S\s])*<header[^<>]*>((?!<\/article>)[\S\s])*<h\d[^<>]*>((?!<\/article>)[\S\s])*<\/h\d>((?!<\/article>)[\S\s])*<\/header>((?!<\/article>)[\S\s])*<\/article>/igm,
 				min: 1,
 				max: 1,
 				valueFormat: "NUMBER",
@@ -285,8 +285,7 @@ export const rules = {
 			snippet: {
 				patterns: [
 					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*content:\s?counter\(\w*\)[\s"']*;[^\{\}]*\}/igm,
-					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*\}/igm,
-					/\{[^\{\}]*counter-reset:\s?\w*;[^\{\}]*\}/igm
+					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*\}/igm
 				],
 				min: 1,
 				max: null,
