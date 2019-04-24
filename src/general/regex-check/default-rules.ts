@@ -284,8 +284,8 @@ export const rules = {
 			files: "*/styles/*.css",
 			snippet: {
 				patterns: [
-					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*content:\s?counter\(\w*\)[\s"']*;[^\{\}]*\}/igm,
-					/h\d:{1,2}before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*\}/igm
+					/:{1,2}before[^\{\}]*\{[^\{\}]*content:\s?counter\(\w*\)[\s"']*;[^\{\}]*\}/igm,
+					/:{1,2}before[^\{\}]*\{[^\{\}]*counter-increment:\s?\w*;[^\{\}]*\}/igm
 				],
 				min: 1,
 				max: null,
